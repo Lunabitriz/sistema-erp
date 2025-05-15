@@ -1,2 +1,2 @@
-# sistema-erp
- Repositório do desenvolvimento do sistema em equipe - Projeto 1º semestre.
+# Sistema ERP
+ Repositório para o desenvolvimento do sistema em equipe | Projeto 1º semestre.
