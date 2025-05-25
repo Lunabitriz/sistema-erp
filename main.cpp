@@ -3,6 +3,8 @@
 #include <string.h>
 #include <locale.h>
 
+#define MAX_PRODUTOS 20
+
 struct Usuarios {
 	char usuario[50]; 
 	char genero[50]; 
@@ -19,6 +21,76 @@ struct Empresa {
 	float rendaMensal;
 	float metaLucro;
 };
+
+typedef struct {
+	char nome[50];
+	int qntEstoque;
+	int codigoProduto;
+	float precoUnidade;
+	float precoCusto;
+} Produtos;
+
+Produtos listaProdutos[MAX_PRODUTOS];
+int qntProdutos = 0;
+
+void limparEnter(char atrr[100]) {
+	atrr[strcspn(atrr, "\n")] = '\0';
+}
+
+void cadastrarProduto() {
+	if(qntProdutos >= MAX_PRODUTOS) {
+		printf("Limite de cadastro de produtos atingido!\n\n");
+		return;
+	}
+	
+	Produtos *novoProduto = &listaProdutos[qntProdutos];
+	
+	printf("--------- Cadastro de novo produto ---------\n\n");
+	
+	getchar();
+	printf("Informe o nome do produto: ");
+	fgets(novoProduto->nome, sizeof(novoProduto->nome), stdin);
+	limparEnter(novoProduto->nome);
+	
+	//add categoria do produto
+	//add subcategoria do produto
+	
+	printf("Informe a quantidade em estoque: ");
+	scanf("%d", &novoProduto->qntEstoque);	
+	
+	printf("\nInforme o preço de venda por unidade do produto: ");
+	scanf("%f", &novoProduto->precoUnidade);
+	
+	
+	printf("Informe o preço de custo por unidade do produto: ");
+	scanf("%f", &novoProduto->precoCusto);
+	
+	printf("\nInforme o código do produto (Ex: 0012): ");
+	scanf("%d", &novoProduto->codigoProduto);			
+	
+	printf("\nProduto adicionado com sucesso!!\n\n");
+	qntProdutos++;
+}
+
+void listarProdutos() {	
+	if(qntProdutos == 0) {
+		printf("Nenhum produto cadastrado no sistema!\n\n");
+		return;
+	}
+		
+	printf("----------- Produtos cadastrados -----------\n\n");
+	
+	for(int i = 0; i < qntProdutos; i++) {
+		printf("| Produto %d: \n\n", i + 1);
+		
+	 	printf("Nome do produto: %s\n", listaProdutos[i].nome);
+	 	printf("Preço de custo (unidade): R$%.2f\n", listaProdutos[i].precoCusto);
+	 	printf("Preço de venda (unidade): R$%.2f\n", listaProdutos[i].precoUnidade);
+	 	printf("Quantidade em estoque: %d\n", listaProdutos[i].qntEstoque);
+	 	printf("Código do produto: %d\n", listaProdutos[i].codigoProduto);	 	
+	 	printf("\n---------------------\n");
+	}
+}
 
 void menuCadastrar() {
 	int op;
@@ -47,7 +119,7 @@ void menuCadastrar() {
 				//cadastrarCliente();
 				break;
 			case 3:
-				//cadastrarProduto();
+				cadastrarProduto();
 				break;
 			case 4:
 				//cadastrarFuncionario();
@@ -90,7 +162,7 @@ void menuListar() {
 		
 		switch(op) {
 			case 1:
-				//listarProdutos();
+				listarProdutos();
 				break;
 			case 2:
 				//listarClientes();
