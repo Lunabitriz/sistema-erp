@@ -42,7 +42,7 @@ void limparEnter(char atrr[100]) {
 
 void cadastrarCategoria() {	
 	int existe;
-	char op, entrada[50];
+	char op, entradaChar[20], entrada[50];
 	
 	Categoria *novaCategoria = &categorias[qntCategorias];
 	novaCategoria->qntSubcategorias = 0;
@@ -53,12 +53,12 @@ void cadastrarCategoria() {
 		existe = 0;
 		
 		printf("Informe o nome da categoria: ");
-		fgets(novaCategoria->nome, 50, stdin);
+		fgets(novaCategoria->nome, sizeof(novaCategoria->nome), stdin);
 		limparEnter(novaCategoria->nome);
 		
 		for(int i = 0; i < qntCategorias; i++) {
 			if(strcmp(novaCategoria->nome, categorias[i].nome) == 0) {
-				printf("\nEsta categoria já foi cadastrada! Por favor, pressione enter e informe outra!\n");
+				printf("\nEsta categoria já foi cadastrada! Por favor, informe outro nome!\n");
 				existe = 1;
 				break;
 			}
@@ -67,56 +67,64 @@ void cadastrarCategoria() {
 	
 	system("cls");
 	
-	do {
-		printf("| Categoria criada: %s", novaCategoria->nome);
-		printf("\n---------------------------");
-		printf("\nDeseja criar uma subcategoria para %s? (s/n): ", novaCategoria->nome);
-		scanf(" %c", &op);
-		
-		op = tolower(op);
+	do {		
+		do {
+			printf("| Categoria criada: %s", novaCategoria->nome);			
+			printf("\n---------------------------");			
+			printf("\nDeseja criar uma subcategoria para %s? (s/n): ", novaCategoria->nome);
+			fgets(entradaChar, sizeof(entradaChar), stdin);
+			limparEnter(entradaChar);
+			
+			op = tolower(entradaChar[0]);
+			
+			if(op != 's' && op != 'n' || strlen(entradaChar) > 1) system("cls");				
+		} while(op != 's' && op != 'n' || strlen(entradaChar) > 1);
 		
 		if(op == 's') {			
-			existe = 0;
-			
-			getchar();
-			printf("\n-> Informe o nome da subcategoria: ");
-			fgets(entrada, 50, stdin);
-			limparEnter(entrada);		
-			
-			for(int i = 0; i < novaCategoria->qntSubcategorias; i++) {
-				if(strcmp(entrada, novaCategoria->subcategorias[i].nome) == 0) {
-					printf("\nEsta subcategoria já foi cadastrada! Por favor, informe outro nome1!\n");
-					existe = 1;
-					break;
-				} 
-			}
-			
+			do {
+				existe = 0;
+				
+				printf("\n-> Informe o nome da subcategoria: ");
+				fgets(entrada, sizeof(entrada), stdin);
+				limparEnter(entrada);		
+				
+				for(int i = 0; i < novaCategoria->qntSubcategorias; i++) {
+					if(strcmp(entrada, novaCategoria->subcategorias[i].nome) == 0) {
+						printf("\nEsta subcategoria já foi cadastrada! Por favor, informe outro nome!\n");
+						existe = 1;
+						break;
+					} 
+				}
+			} while(existe);
+					
 			if(!existe) {
-				strcpy(novaCategoria->subcategorias[novaCategoria->qntSubcategorias].nome, entrada);
-				printf("\nSubcategoria: %s criada com sucesso!\n", novaCategoria->subcategorias[novaCategoria->qntSubcategorias].nome);
+				strcpy(novaCategoria->subcategorias[novaCategoria->qntSubcategorias].nome, entrada);				
+				printf("\n| Subcategoria: %s criada com sucesso!\n\n", novaCategoria->subcategorias[novaCategoria->qntSubcategorias].nome);
 				novaCategoria->qntSubcategorias++;					
-			}
-		}
-		
+				system("pause");
+			}			
+		}		
 		system("cls");
-	} while (op != 'n');	
+	} while (op != 'n');		
 	
-	system("cls");
 	printf("Categoria %s criada com sucesso!\n\n", novaCategoria->nome);		
 	qntCategorias++;
 }
 
 void listarCategorias() {	
-	printf("------- Categorias Cadastradas: -------\n\n");
-	
-	for(int i = 0; i < qntCategorias; i++) {		
-		printf("Categoria %d: %s\n", i + 1, categorias[i].nome);	
-			
-		for(int j = 0; j < categorias[i].qntSubcategorias; j++) {
-			if(categorias[i].qntSubcategorias > 0)
-				printf("\tSubcategoria %d: %s\n", j + 1, categorias[i].subcategorias[j].nome);
-		}		
-		printf("\n---------------------\n");
+	if(qntCategorias == 0) printf("Nenhuma categoria cadastrada no sistema!\n\n");		
+	else {
+		printf("------- Categorias Cadastradas: -------\n\n");
+		
+		for(int i = 0; i < qntCategorias; i++) {		
+			printf("Categoria %d: %s\n", i + 1, categorias[i].nome);	
+				
+			for(int j = 0; j < categorias[i].qntSubcategorias; j++) {
+				if(categorias[i].qntSubcategorias > 0)
+					printf("\tSubcategoria %d: %s\n", j + 1, categorias[i].subcategorias[j].nome);
+			}		
+			printf("\n---------------------\n");
+		}
 	}
 }
 
