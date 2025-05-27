@@ -10,7 +10,7 @@ struct Usuarios {
     char genero[50];
     char email[50];
     char senha[50];
-    int idade;
+    int idade[20];
 };
 
 struct Empresa {
@@ -26,38 +26,70 @@ struct Cliente {
     char nome[50];
     char cpf[12];
     char email[50];
-    int idade;
+    int idade[20];
 };
 
 struct Cliente clientes[MAX_CLIENTES];
 int totalClientes = 0;
 
-// Limpa buffer do stdin
 void limparBuffer() {
     int c;
     while ((c = getchar()) != '\n' && c != EOF);
 }
 
-// Valida se CPF tem exatamente 11 dígitos numéricos
+void limparTela() {
+#ifdef _WIN32
+    system("cls");
+#else
+    system("clear");
+#endif
+}
+
+void exibirTelaInicial() {
+    limparTela();
+    printf("====================================\n");
+    printf("         BEM-VINDO AO SISTEMA       \n");
+    printf("              SENAI ERP             \n");
+    printf("====================================\n\n");
+
+    int opcao;
+    do {
+        printf("1 - Deseja Entrar no Sistema? \n");
+        printf("2 - Deseja Sair do Sistema?  \n");
+        printf("-> Escolha: ");
+        if (scanf("%d", &opcao) != 1) {
+            limparBuffer();
+            opcao = 0;
+        } else {
+            limparBuffer();
+        }
+
+        if (opcao == 2) {
+            printf("Saindo do sistema...\n");
+            exit(0);
+        } else if (opcao != 1) {
+            printf("Opção invalida! Tente novamente.\n");
+        }
+
+    } while (opcao != 1);
+
+    limparTela();
+}
+
 int validarCPF(const char *cpf) {
     if (strlen(cpf) != 11) return 0;
-
     for (int i = 0; i < 11; i++) {
-        if (cpf[i] < '0' || cpf[i] > '9') {
-            return 0;
-        }
+        if (cpf[i] < '0' || cpf[i] > '9') return 0;
     }
     return 1;
 }
 
-// Salva os clientes no arquivo
 void salvarClientesEmArquivo() {
     FILE *arquivo = fopen("clientes.txt", "w");
-    if (arquivo == NULL) {
+    if (!arquivo) {
         printf("Erro ao abrir o arquivo para salvar os clientes.\n");
         return;
     }
-
     for (int i = 0; i < totalClientes; i++) {
         fprintf(arquivo, "%s;%s;%s;%d\n",
                 clientes[i].nome,
@@ -65,17 +97,12 @@ void salvarClientesEmArquivo() {
                 clientes[i].email,
                 clientes[i].idade);
     }
-
     fclose(arquivo);
 }
 
-// Carrega os clientes do arquivo
 void carregarClientesDoArquivo() {
     FILE *arquivo = fopen("clientes.txt", "r");
-    if (arquivo == NULL) {
-        // Arquivo não existe ainda, nada a carregar
-        return;
-    }
+    if (!arquivo) return;
 
     char linha[200];
     while (totalClientes < MAX_CLIENTES && fgets(linha, sizeof(linha), arquivo)) {
@@ -92,62 +119,53 @@ void carregarClientesDoArquivo() {
     fclose(arquivo);
 }
 
-// Função para cadastrar cliente
 void cadastrarCliente() {
     if (totalClientes >= MAX_CLIENTES) {
         printf("Limite de clientes atingido!\n");
         return;
     }
 
-    printf("---- Cadastro de Cliente ----\n");
+    printf("---- Cadastro de Cliente ----\n\n");
 
-// Nome
-printf("Nome: ");
-fgets(clientes[totalClientes].nome, sizeof(clientes[totalClientes].nome), stdin);
-clientes[totalClientes].nome[strcspn(clientes[totalClientes].nome, "\n")] = '\0';
+    printf("Informe seu nome: ");
+    fgets(clientes[totalClientes].nome, sizeof(clientes[totalClientes].nome), stdin);
+    clientes[totalClientes].nome[strcspn(clientes[totalClientes].nome, "\n")] = '\0';
 
-// CPF
+    // CPF
 do {
-    printf("CPF (apenas numeros, 11 digitos): ");
-    if (fgets(clientes[totalClientes].cpf, sizeof(clientes[totalClientes].cpf), stdin) == NULL) {
-        printf("Erro na leitura do CPF. Tente novamente.\n");
-        continue;
-    }
+    printf("Informe seu CPF: ");
+    fgets(clientes[totalClientes].cpf, sizeof(clientes[totalClientes].cpf), stdin);
     clientes[totalClientes].cpf[strcspn(clientes[totalClientes].cpf, "\n")] = '\0';
 
     if (!validarCPF(clientes[totalClientes].cpf)) {
-        printf("CPF inválido! Tente novamente.\n");
+        printf("CPF inválido! Deve conter 11 dígitos numéricos.\n");
     } else {
         break;
     }
 } while (1);
 
-// Pergunta Email separadamente
-fflush(stdin);
-printf("Email (digite seu email): ");
-fgets(clientes[totalClientes].email, sizeof(clientes[totalClientes].email), stdin);
-clientes[totalClientes].email[strcspn(clientes[totalClientes].email, "\n")] = '\0';
+   // Email
+   printf("Informe seu e-mail: ");
+   fgets(clientes[totalClientes].email, sizeof(clientes[totalClientes].email), stdin);
+   clientes[totalClientes].email[strcspn(clientes[totalClientes].email, "\n")] = '\0';
 
-// Pergunta Idade separadamente
-printf("Idade (digite sua idade): ");
-while (scanf("%d", &clientes[totalClientes].idade) != 1 || clientes[totalClientes].idade <= 0) {
-    printf("Entrada inválida para idade. Digite um número válido: ");
-    limparBuffer();
+   // Garante que não há lixo no buffer antes de scanf
+   printf("Informe sua idade: ");
+  while (1) {
+    char entrada[10];
+    fgets(entrada, sizeof(entrada), stdin);
+    if (sscanf(entrada, "%d", &clientes[totalClientes].idade) == 1 && clientes[totalClientes].idade > 0) {
+        break;
+    } else {
+        printf("Idade inválida. Tente novamente: ");
+    }
 }
-limparBuffer();  // Limpa o '\n' que fica no buffer após o scanf
-
-limparBuffer();  // Limpa o '\n' remanescente após o scanf
-
-    limparBuffer(); // limpa '\n' após o scanf
 
     totalClientes++;
-
-    salvarClientesEmArquivo(); // salva os dados após cadastro
-
+    salvarClientesEmArquivo();
     printf("Cliente cadastrado com sucesso!\n");
 }
 
-// Função para listar clientes
 void listarClientes() {
     if (totalClientes == 0) {
         printf("Nenhum cliente cadastrado.\n");
@@ -165,14 +183,11 @@ void listarClientes() {
     }
 }
 
-// Outros menus e funções permanecem os mesmos, com chamadas para funções de cadastro, listagem, etc.
-
 void menuCadastrar() {
     int op;
-
     while (1) {
-        printf("| Menu - Cadastrar informacoes\n");
-        printf("---------------------------\n\n");
+        printf("| Menu - Cadastrar informações\n");
+        printf("------------------------------\n\n");
 
         printf("1- Cadastrar nova venda\n");
         printf("2- Cadastrar cliente\n");
@@ -185,51 +200,28 @@ void menuCadastrar() {
         scanf("%d", &op);
         limparBuffer();
 
-#ifdef _WIN32
-        system("cls");
-#else
-        system("clear");
-#endif
+        limparTela();
 
         switch (op) {
-        case 1:
-            // cadastrarVenda();
-            printf("Funcionalidade não implementada ainda.\n");
-            break;
-        case 2:
-            cadastrarCliente();
-            break;
-        case 3:
-            // cadastrarProduto();
-            printf("Funcionalidade não implementada ainda.\n");
-            break;
-        case 4:
-            // cadastrarFuncionario();
-            printf("Funcionalidade não implementada ainda.\n");
-            break;
-        case 5:
-            // cadastrarCategoria();
-            printf("Funcionalidade não implementada ainda.\n");
-            break;
-        case 6:
-            // cadastrarSubcategoria();
-            printf("Funcionalidade não implementada ainda.\n");
-            break;
-        case 7:
-            printf("Voltando para o menu painel!\n\n");
-            return;
-        default:
-            printf("Escolha uma opcao valida!\n\n");
+            case 1:
+            case 3:
+            case 4:
+            case 5:
+            case 6:
+                printf("Funcionalidade não implementada ainda.\n");
+                break;
+            case 2:
+                cadastrarCliente();
+                break;
+            case 7:
+                return;
+            default:
+                printf("Escolha uma opção valida!\n");
         }
 
-#ifdef _WIN32
-        system("pause");
-        system("cls");
-#else
         printf("Pressione Enter para continuar...");
         getchar();
-        system("clear");
-#endif
+        limparTela();
     }
 }
 
@@ -237,60 +229,40 @@ void menuListar() {
     int op;
 
     while (1) {
-        printf("| Menu - Listar informacoes\n");
-        printf("---------------------------\n\n");
+        printf("| Menu - Listar informações\n");
+        printf("----------------------------\n\n");
 
         printf("1- Listar produtos\n");
         printf("2- Listar clientes\n");
-        printf("3- Listar funcionarios\n");
+        printf("3- Listar funcionários\n");
         printf("4- Listar vendas\n");
         printf("5- Listar categorias\n");
         printf("6- Voltar ao menu\n\n");
-        printf("-> Escolha uma opcao: ");
+        printf("-> Escolha uma opção: ");
         scanf("%d", &op);
         limparBuffer();
 
-#ifdef _WIN32
-        system("cls");
-#else
-        system("clear");
-#endif
+        limparTela();
 
         switch (op) {
-        case 1:
-            // listarProdutos();
-            printf("Funcionalidade não implementada ainda.\n");
-            break;
-        case 2:
-            listarClientes();
-            break;
-        case 3:
-            // listarFuncionario();
-            printf("Funcionalidade não implementada ainda.\n");
-            break;
-        case 4:
-            // listarVendas();
-            printf("Funcionalidade não implementada ainda.\n");
-            break;
-        case 5:
-            // listarCategorias();
-            printf("Funcionalidade não implementada ainda.\n");
-            break;
-        case 6:
-            printf("Voltando para o menu painel!\n\n");
-            return;
-        default:
-            printf("Escolha uma opcao valida!\n\n");
+            case 2:
+                listarClientes();
+                break;
+            case 1:
+            case 3:
+            case 4:
+            case 5:
+                printf("Funcionalidade não implementada ainda.\n");
+                break;
+            case 6:
+                return;
+            default:
+                printf("Escolha uma opção válida!\n");
         }
 
-#ifdef _WIN32
-        system("pause");
-        system("cls");
-#else
         printf("Pressione Enter para continuar...");
         getchar();
-        system("clear");
-#endif
+        limparTela();
     }
 }
 
@@ -298,52 +270,37 @@ void menuEditar() {
     int op;
 
     while (1) {
-        printf("| Menu - Editar informacoes\n");
-        printf("---------------------------\n\n");
+        printf("| Menu - Editar informações\n");
+        printf("-----------------------------\n\n");
 
         printf("1- Editar venda\n");
         printf("2- Remover venda\n");
         printf("3- Voltar ao menu\n\n");
-        printf("-> Escolha uma opcao: ");
+        printf("-> Escolha uma opção: ");
         scanf("%d", &op);
         limparBuffer();
 
-#ifdef _WIN32
-        system("cls");
-#else
-        system("clear");
-#endif
+        limparTela();
 
         switch (op) {
-        case 1:
-            // editarVenda();
-            printf("Funcionalidade não implementada ainda.\n");
-            break;
-        case 2:
-            // removerVenda();
-            printf("Funcionalidade não implementada ainda.\n");
-            break;
-        case 3:
-            printf("Voltando para o menu painel!\n\n");
-            return;
-        default:
-            printf("Escolha uma opcao valida!\n\n");
+            case 1:
+            case 2:
+                printf("Funcionalidade não implementada ainda.\n");
+                break;
+            case 3:
+                return;
+            default:
+                printf("Escolha uma opção válida!\n");
         }
 
-#ifdef _WIN32
-        system("pause");
-        system("cls");
-#else
         printf("Pressione Enter para continuar...");
         getchar();
-        system("clear");
-#endif
+        limparTela();
     }
 }
 
 void exibirRelatorio() {
-    // para desenvolver
-    printf("Funcionalidade não implementada ainda.\n");
+    printf("Funcionalidade de relatório não implementada ainda.\n");
 }
 
 int menuPainel() {
@@ -353,65 +310,47 @@ int menuPainel() {
         printf("| Menu Painel\n");
         printf("---------------------------\n\n");
 
-        printf("1- Cadastrar informacoes\n");
+        printf("1- Cadastrar informações\n");
         printf("2- Listar informações\n");
         printf("3- Editar\n");
-        printf("4- Acessar relatorio\n");
+        printf("4- Acessar relatório\n");
         printf("5- Voltar ao menu\n\n");
-        printf("-> Escolha uma opcao: ");
+        printf("-> Escolha uma opção: ");
         scanf("%d", &op);
         limparBuffer();
 
-#ifdef _WIN32
-        system("cls");
-#else
-        system("clear");
-#endif
+        limparTela();
 
         switch (op) {
-        case 1:
-            menuCadastrar();
-            break;
-        case 2:
-            menuListar();
-            break;
-        case 3:
-            menuEditar();
-            break;
-        case 4:
-            printf("Relatório acessado!\n\n");
-            exibirRelatorio();
-            break;
-        case 5:
-            printf("Voltando para o menu!\n\n");
-            return 2;
-        default:
-            printf("Escolha uma opção valida!\n\n");
+            case 1:
+                menuCadastrar();
+                break;
+            case 2:
+                menuListar();
+                break;
+            case 3:
+                menuEditar();
+                break;
+            case 4:
+                exibirRelatorio();
+                break;
+            case 5:
+                return 0;
+            default:
+                printf("Escolha uma opção válida!\n");
         }
 
-#ifdef _WIN32
-        system("pause");
-        system("cls");
-#else
         printf("Pressione Enter para continuar...");
         getchar();
-        system("clear");
-#endif
+        limparTela();
     }
 }
 
 void login() {
-    printf("Login acessado! Redirecionando para o Menu Painel.\n\n");
-
-#ifdef _WIN32
-    system("pause");
-    system("cls");
-#else
+    printf("Login acessado! Redirecionando para o Menu Painel.\n");
     printf("Pressione Enter para continuar...");
     getchar();
-    system("clear");
-#endif
-
+    limparTela();
     menuPainel();
 }
 
@@ -421,49 +360,38 @@ void menuInicial() {
     while (1) {
         printf("------ Menu login/cadastro ------\n\n");
         printf("1- Login\n");
-        printf("2- Cadastrar novo usuario\n");
+        printf("2- Cadastrar novo usuário\n");
         printf("3- Sair do sistema\n\n");
-        printf("-> Escolha uma opcao: ");
+        printf("-> Escolha uma opção: ");
         scanf("%d", &op);
         limparBuffer();
 
-#ifdef _WIN32
-        system("cls");
-#else
-        system("clear");
-#endif
+        limparTela();
 
         switch (op) {
-        case 1:
-            login();
-            break;
-        case 2:
-            // cadastrar();
-            printf("Funcionalidade não implementada ainda.\n");
-            break;
-        case 3:
-            printf("Encerrando sistema...\n\n");
-            exit(0);
-        default:
-            printf("Opcao invalida!!\n\n");
+            case 1:
+                login();
+                break;
+            case 2:
+                printf("Funcionalidade de cadastro ainda não implementada.\n");
+                break;
+            case 3:
+                printf("Encerrando sistema...\n");
+                exit(0);
+            default:
+                printf("Opção inválida!\n");
         }
 
-#ifdef _WIN32
-        system("pause");
-        system("cls");
-#else
         printf("Pressione Enter para continuar...");
         getchar();
-        system("clear");
-#endif
+        limparTela();
     }
 }
 
 int main() {
-    setlocale(LC_ALL, "portuguese");
-
+    setlocale(LC_ALL, "Portuguese");
+    exibirTelaInicial();
     carregarClientesDoArquivo();
     menuInicial();
-
     return 0;
 }
