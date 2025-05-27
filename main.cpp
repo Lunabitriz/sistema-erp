@@ -33,6 +33,23 @@ typedef struct {
 Produtos listaProdutos[MAX_PRODUTOS];
 int qntProdutos = 0;
 
+int verificacao(int entrada, int tamanhoEsperado, char *nome, char instrucao[50]){  //verifica se determinada variavel tem um numero expecifico
+	if(entrada < tamanhoEsperado){ 
+		printf("\n%s Inválido!!! %s\n", nome, instrucao);
+		return 0;
+	} 
+	return 1;
+}
+
+int somenteNumeros(char str[100]) {  //função que força usuario digitar apenas numeros mesmo sendo uma string
+	for(int i = 0; str[i] != '\0'; i++) {
+		if(str[i] < '0' || str[i] > '9') {
+			return 0;
+		}
+	}
+	return 1;
+}
+
 void limparEnter(char atrr[100]) {
 	atrr[strcspn(atrr, "\n")] = '\0';
 }
@@ -42,6 +59,9 @@ void cadastrarProduto() {
 		printf("Limite de cadastro de produtos atingido!\n\n");
 		return;
 	}
+	
+	char entradaInt[100];
+	char entradaFloat[100];
 	
 	Produtos *novoProduto = &listaProdutos[qntProdutos];
 	
@@ -55,18 +75,29 @@ void cadastrarProduto() {
 	//add categoria do produto
 	//add subcategoria do produto
 	
-	printf("Informe a quantidade em estoque: ");
-	scanf("%d", &novoProduto->qntEstoque);	
+	do {
+		printf("Informe a quantidade em estoque: ");
+		scanf("%s", &entradaInt);
+	} while(!somenteNumeros(entradaInt));		
+	novoProduto->qntEstoque = atoi(entradaInt);
 	
-	printf("\nInforme o preço de venda por unidade do produto: ");
-	scanf("%f", &novoProduto->precoUnidade);
+	do {
+		printf("\nInforme o preço de venda por unidade do produto: ");
+		scanf("%s", &entradaFloat);
+	} while(!somenteNumeros(entradaFloat));	
+	novoProduto->precoUnidade = atof(entradaFloat);	
 	
-	
-	printf("Informe o preço de custo por unidade do produto: ");
-	scanf("%f", &novoProduto->precoCusto);
-	
-	printf("\nInforme o código do produto (Ex: 0012): ");
-	scanf("%d", &novoProduto->codigoProduto);			
+	do {
+		printf("Informe o preço de custo por unidade do produto: ");
+		scanf("%s", &entradaFloat);
+	} while(!somenteNumeros(entradaFloat));	
+	novoProduto->precoCusto = atof(entradaFloat);
+				
+	do {
+		printf("\nInforme o código do produto (Ex: 0012): ");
+		scanf("%s", &entradaInt);
+	} while(!somenteNumeros(entradaInt) || !verificacao(strlen(entradaInt), 4, "Código", "Informe um código com 4 dígitos"));	
+	novoProduto->codigoProduto = atof(entradaInt);	
 	
 	printf("\nProduto adicionado com sucesso!!\n\n");
 	qntProdutos++;
