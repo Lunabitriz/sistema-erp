@@ -2,6 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <locale.h>
+#include <ctype.h>
+
+#define MAX_CATEG 20
+#define MAX_SUBCATG 5
 
 struct Usuarios {
 	char usuario[50]; 
@@ -19,6 +23,164 @@ struct Empresa {
 	float rendaMensal;
 	float metaLucro;
 };
+
+typedef struct {
+	char nome[50];
+} Subcategoria;
+
+typedef struct {
+	char nome[50];
+	Subcategoria subcategorias[MAX_SUBCATG];
+	int qntSubcategorias;
+} Categoria;
+
+Categoria categorias[MAX_CATEG];
+int qntCategorias = 0;
+
+void limparEnter(char atrr[100]) {
+	atrr[strcspn(atrr, "\n")] = '\0';
+}
+
+//Inclusão - função de cadastrar categorias 
+void cadastrarCategoria() {	
+	int existe;
+	char op, entradaChar[20], entrada[50];
+	
+	Categoria *novaCategoria = &categorias[qntCategorias];
+	novaCategoria->qntSubcategorias = 0;
+	
+	getchar();
+	
+	do {
+		existe = 0;
+		
+		printf("Informe o nome da categoria: ");
+		fgets(novaCategoria->nome, sizeof(novaCategoria->nome), stdin);
+		limparEnter(novaCategoria->nome);
+		
+		for(int i = 0; i < qntCategorias; i++) {
+			if(strcmp(novaCategoria->nome, categorias[i].nome) == 0) {
+				printf("\nEsta categoria já foi cadastrada! Por favor, informe outro nome!\n");
+				existe = 1;
+				break;
+			}
+		}
+	} while(existe);
+	
+	system("cls");
+	
+	do {		
+		do {
+			printf("| Categoria criada: %s", novaCategoria->nome);			
+			printf("\n---------------------------");			
+			printf("\nDeseja criar uma subcategoria para %s? (s/n): ", novaCategoria->nome);
+			fgets(entradaChar, sizeof(entradaChar), stdin);
+			limparEnter(entradaChar);
+			
+			op = tolower(entradaChar[0]);
+			
+			if(op != 's' && op != 'n' || strlen(entradaChar) > 1) system("cls");				
+		} while(op != 's' && op != 'n' || strlen(entradaChar) > 1);
+		
+		if(op == 's') {			
+			do {
+				existe = 0;
+				
+				printf("\n-> Informe o nome da subcategoria: ");
+				fgets(entrada, sizeof(entrada), stdin);
+				limparEnter(entrada);		
+				
+				for(int i = 0; i < novaCategoria->qntSubcategorias; i++) {
+					if(strcmp(entrada, novaCategoria->subcategorias[i].nome) == 0) {
+						printf("\nEsta subcategoria já foi cadastrada! Por favor, informe outro nome!\n");
+						existe = 1;
+						break;
+					} 
+				}
+			} while(existe);
+					
+			if(!existe) {
+				strcpy(novaCategoria->subcategorias[novaCategoria->qntSubcategorias].nome, entrada);				
+				printf("\n| Subcategoria: %s criada com sucesso!\n\n", novaCategoria->subcategorias[novaCategoria->qntSubcategorias].nome);
+				novaCategoria->qntSubcategorias++;					
+				system("pause");
+			}			
+		}		
+		system("cls");
+	} while (op != 'n');		
+	
+	printf("Categoria %s criada com sucesso!\n\n", novaCategoria->nome);		
+	qntCategorias++;
+}
+
+void listarCategorias() {	
+	if(qntCategorias == 0) printf("Nenhuma categoria cadastrada no sistema!\n\n");		
+	else {
+		printf("------- Categorias Cadastradas: -------\n\n");
+		
+		for(int i = 0; i < qntCategorias; i++) {		
+			printf("Categoria %d: %s\n", i + 1, categorias[i].nome);	
+				
+			for(int j = 0; j < categorias[i].qntSubcategorias; j++) {
+				if(categorias[i].qntSubcategorias > 0)
+					printf("\tSubcategoria %d: %s\n", j + 1, categorias[i].subcategorias[j].nome);
+			}		
+			printf("\n---------------------\n");
+		}
+	}
+}
+
+//Inclusão - função de cadastrar subcategorias 
+void cadastrarSubcategoria() {
+	int idCategoria, existe;
+	char nomeNovaSubcat[50];
+	
+	if(qntCategorias == 0) 
+		printf("Nenhuma categoria cadastrada no sistema! Por favor, cadastre uma categoria para poder adicionar subcategorias.\n\n");
+	else {		
+		for(int i = 0; i < qntCategorias; i++)
+			printf("Categoria %d: %s\n", i + 1, categorias[i].nome);	
+			
+		do {				
+			printf("\n---------------------\n\n");
+			printf("Escolha uma categoria entre 1 a %d (informe apenas números): ", qntCategorias);
+			scanf("%d", &idCategoria);			
+			
+			if(idCategoria < 1 || idCategoria > qntCategorias) 
+				printf("\nSelecione uma opção válida!\n");
+		} while(idCategoria < 1 || idCategoria > qntCategorias);		
+		
+		getchar();
+		Categoria *novaSubcategoria = &categorias[idCategoria - 1];	
+		
+		do {
+			existe = 0;
+			
+			system("cls");		
+			printf("| Categoria selecionada: %s\n", novaSubcategoria->nome);			
+			printf("---------------------\n");
+			
+			printf("Informe o nome da nova subcategoria: ");
+			fgets(nomeNovaSubcat, sizeof(nomeNovaSubcat), stdin);
+			limparEnter(nomeNovaSubcat);
+			
+			for(int i = 0; i < novaSubcategoria->qntSubcategorias; i++) {
+				if(strcmp(nomeNovaSubcat, categorias[idCategoria].subcategorias[i].nome) == 0) {
+					printf("\nEsta subcategoria já foi cadastrada! Por favor, pressione enter e informe outra!\n\n");
+					existe = 1;
+					getchar();
+					break;
+				}
+			}
+			
+			if(!existe) {
+				strcpy(novaSubcategoria->subcategorias[novaSubcategoria->qntSubcategorias].nome, nomeNovaSubcat);
+				novaSubcategoria->qntSubcategorias++;
+				printf("\nSubcategoria criada com sucesso!\n\n");
+			}
+		} while(existe);		
+	}
+}
 
 void menuCadastrar() {
 	int op;
@@ -53,10 +215,10 @@ void menuCadastrar() {
 				//cadastrarFuncionario();
 				break;
 			case 5:
-				//cadastrarCategoria();
+				cadastrarCategoria();
 				break;
 			case 6:
-				//cadastrarSubcategoria();
+				cadastrarSubcategoria();
 				break;
 			case 7:
 				printf("Voltando para o menu painel!\n\n");
@@ -102,7 +264,7 @@ void menuListar() {
 				//listarVendas();
 				break;
 			case 5:
-				//listarCategorias();
+				listarCategorias();
 				break;
 			case 6:
 				printf("Voltando para o menu painel!\n\n");
