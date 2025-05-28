@@ -138,12 +138,14 @@ do {
     clientes[totalClientes].cpf[strcspn(clientes[totalClientes].cpf, "\n")] = '\0';
 
     if (!validarCPF(clientes[totalClientes].cpf)) {
-        printf("CPF inválido! Deve conter 11 dígitos numéricos.\n");
+        printf("\nCPF inválido! Deve conter 11 dígitos numericos.\n");
     } else {
         break;
     }
 } while (1);
 
+
+fflush(stdin);
    // Email
    printf("Informe seu e-mail: ");
    fgets(clientes[totalClientes].email, sizeof(clientes[totalClientes].email), stdin);
@@ -186,7 +188,7 @@ void listarClientes() {
 void menuCadastrar() {
     int op;
     while (1) {
-        printf("| Menu - Cadastrar informações\n");
+        printf("| Menu - Cadastrar informacoes\n");
         printf("------------------------------\n\n");
 
         printf("1- Cadastrar nova venda\n");
@@ -229,7 +231,7 @@ void menuListar() {
     int op;
 
     while (1) {
-        printf("| Menu - Listar informações\n");
+        printf("| Menu - Listar informacoes\n");
         printf("----------------------------\n\n");
 
         printf("1- Listar produtos\n");
