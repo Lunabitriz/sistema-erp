@@ -8,23 +8,23 @@
 #define MAX_USERS 20
 
 struct Usuario {
-    char usuario[50];
-	//char genero[50]; 
-    char email[50];
-    char senha[50];
-    char cpf[50];
-	//int idade;
+	char usuario[50]; 
+	char genero[50]; 
+	char email[50]; 
+	char senha[50]; 
+	char cpf[50]; 
+	int idade;
 };
 
 struct Empresa {
-    char nomeEmpresa[50];
-    char responsavel[50];
-    char cnpj[50];
     char tel[50];
-//	int porteEmpresa;
-//	int tempoAtuacao;
-//	float rendaMensal;
-//	float metaLucro;
+    char cnpj[50];
+	char nomeEmpresa[50]; 
+	char responsavel[50]; 
+	int porteEmpresa;
+	int tempoAtuacao;
+	float rendaMensal;
+	float metaLucro;
 };
 
 struct Empresa empresa[MAX_EMPRESAS];
@@ -38,12 +38,19 @@ int verificacao(int entrada, int tamanhoEsperado, char *nome) {
     return 1;
 }
 
-int somenteNumeros(char str[]) {
-    for (int i = 0; str[i] != '\0'; i++) {
-        if (str[i] < '0' || str[i] > '9') {
-            return 0;
-        }
+int somenteReais(char str[]) {
+    int temPonto = 0;
+    
+    if(str[0] == '\0') return 0;
+    
+    for(int i = 0; str[i] != '\0'; i++) {
+        if(str[i] == '.') {
+            if(temPonto) return 0;
+                
+            temPonto = 1;
+        } else if (str[i] < '0' || str[i] > '9') return 0;
     }
+    
     return 1;
 }
 
@@ -232,11 +239,11 @@ int menuPainel() {
 void cadastroUsuario(struct Usuario usuario[], int *cadastro) {
     int tamanhoSenha, tamanhoCpf;
     int index = *cadastro;
+    char entrada[50];
     
     Usuario *novoUsuario = &usuario[index];
 
     getchar();
-//    system("cls");
     printf("------ Bem-Vindo!! ------\n\n");
 
     printf("Email: ");
@@ -248,21 +255,11 @@ void cadastroUsuario(struct Usuario usuario[], int *cadastro) {
         fgets(novoUsuario->cpf, sizeof(novoUsuario->cpf), stdin);
         limparEnter(novoUsuario->cpf);        
         tamanhoCpf = strlen(novoUsuario->cpf);
-    } while (!verificacao(tamanhoCpf, 11, "CPF") || !somenteNumeros(novoUsuario->cpf));
+    } while (!verificacao(tamanhoCpf, 11, "CPF") || !somenteReais(novoUsuario->cpf));
 
     printf("Informe Nome de usuário: ");
     fgets(novoUsuario->usuario, sizeof(novoUsuario->usuario), stdin);
     limparEnter(novoUsuario->usuario);
-    
-	/*
-	Antes não permitia senhas acima de 8 dígitos
-    do {
-        printf("Informe uma senha com no mínimo 8 caractéres: ");
-        fgets(novoUsuario->senha, sizeof(novoUsuario->senha), stdin);
-        limparEnter(novoUsuario->senha);
-        tamanhoSenha = strlen(novoUsuario->senha);
-    } while (!verificacao(tamanhoSenha, 8, "Senha"));
-    */
     
     do {
         printf("Informe uma senha com no mínimo 8 caracteres: ");
@@ -308,14 +305,14 @@ void cadastroEmpresa(struct Empresa empresa[], int *cadastroEM) {
         fgets(novaEmpresa->cnpj, sizeof(novaEmpresa->cnpj), stdin);
         limparEnter(novaEmpresa->cnpj);
         tamanhoCnpj = strlen(novaEmpresa->cnpj);
-    } while (!verificacao(tamanhoCnpj, 14, "CNPJ") || !somenteNumeros(novaEmpresa->cnpj));
+    } while (!verificacao(tamanhoCnpj, 14, "CNPJ") || !somenteReais(novaEmpresa->cnpj));
 
     do {
         printf("\nInforme Numero de Telefone/Celular: ");
         fgets(novaEmpresa->tel, sizeof(novaEmpresa->tel), stdin);
         limparEnter(novaEmpresa->tel);
         tamanhoTel = strlen(novaEmpresa->tel);
-    } while (!verificacao(tamanhoTel, 11, "Telefone") || !somenteNumeros(novaEmpresa->tel));
+    } while (!verificacao(tamanhoTel, 11, "Telefone") || !somenteReais(novaEmpresa->tel));
 
     printf("Cadastro Feito com sucesso!!!\n\n");
     (*cadastroEM)++;
@@ -351,7 +348,6 @@ void login(struct Usuario usuario[], int totalUsuarios) {
         printf("\nLogin bem-sucedido! Bem-vindo(a) de volta, %s!\n\n", nomeUsuario);
         system("pause");
         system("cls");
-//        printf("Bem-vindo(a), %s! \n\n", nomeUsuario);
         menuPainel();
     } else
         printf("\nUsuário ou senha incorretos!\n");
