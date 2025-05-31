@@ -56,6 +56,22 @@ void limparEnter(char atrr[]) {
 	atrr[strcspn(atrr, "\n")] = '\0';
 }
 
+int somenteReais(char str[]) {
+    int temPonto = 0;
+    
+    if(str[0] == '\0') return 0;
+    
+    for(int i = 0; str[i] != '\0'; i++) {
+        if(str[i] == '.') {
+            if(temPonto) return 0;
+                
+            temPonto = 1;
+        } else if (str[i] < '0' || str[i] > '9') return 0;
+    }
+    
+    return 1;
+}
+
 //Inclusão - função de cadastrar categorias 
 void cadastrarCategoria() {	
 	int existe;
@@ -100,7 +116,7 @@ void cadastrarCategoria() {
 		if(op == 's') {			
 			do {
 				existe = 0;
-				
+								
 				printf("\n-> Informe o nome da subcategoria: ");
 				fgets(entrada, sizeof(entrada), stdin);
 				limparEnter(entrada);		
@@ -180,8 +196,8 @@ void cadastrarSubcategoria() {
 			limparEnter(nomeNovaSubcat);
 			
 			for(int i = 0; i < novaSubcategoria->qntSubcategorias; i++) {
-				if(strcmp(nomeNovaSubcat, categorias[idCategoria].subcategorias[i].nome) == 0) {
-					printf("\nEsta subcategoria já foi cadastrada! Por favor, pressione enter e informe outra!\n\n");
+				if(strcmp(nomeNovaSubcat, categorias[idCategoria - 1].subcategorias[i].nome) == 0) {
+					printf("\nEsta subcategoria já foi cadastrada! Por favor, pressione enter e informe outro nome!\n\n");
 					existe = 1;
 					getchar();
 					break;
@@ -191,7 +207,7 @@ void cadastrarSubcategoria() {
 			if(!existe) {
 				strcpy(novaSubcategoria->subcategorias[novaSubcategoria->qntSubcategorias].nome, nomeNovaSubcat);
 				novaSubcategoria->qntSubcategorias++;
-				printf("\nSubcategoria criada com sucesso!\n\n");
+				printf("\nSubcategoria %s criada com sucesso!\n\n", nomeNovaSubcat);
 			}
 		} while(existe);		
 	}
@@ -204,6 +220,7 @@ void cadastrarProduto() {
 	}
 	
 	Produtos *novoProd = &produtos[qntProdutos];
+	char entrada[20];
 	
 	getchar();
 	printf("Informe o nome do produto: ");
@@ -221,39 +238,64 @@ void cadastrarProduto() {
 		for(int i = 0; i < qntCategorias; i++)
 			printf("\tCategoria %d: %s\n", i + 1, categorias[i].nome);
 		
-		printf("\nSelecione a categoria do produto (de 1 a %d): ", qntCategorias);
-		scanf("%d", &idxCategoria);	
+		do {
+			printf("\nSelecione a categoria do produto (de 1 a %d): ", qntCategorias);
+			scanf("%d", &idxCategoria);				
+		} while(idxCategoria < 1 || idxCategoria > qntCategorias);
 		
 		novoProd->idxCategoria = idxCategoria - 1;
 		Categoria *categoriaSelecionada = &categorias[novoProd->idxCategoria];
 		
 		if(categoriaSelecionada->qntSubcategorias > 0) {
-			//listar subcategorias -> categoria
 			printf("\n| Subcategorias cadastradas:\n");
+			
 			for(int i = 0; i < categoriaSelecionada->qntSubcategorias; i++)
 				printf("\tSubcategoria %d: %s\n", i + 1, categoriaSelecionada->subcategorias[i].nome);
 			
-			printf("\nSelecione a subcategoria: ");
-			scanf("%d", &idxSubcategoria);	
+			do {
+				printf("\nSelecione a subcategoria: ");
+				scanf("%d", &idxSubcategoria);	
+			} while(idxSubcategoria < 1 || idxSubcategoria > categoriaSelecionada->qntSubcategorias);
 			
 			novoProd->idxSubcategoria = idxSubcategoria - 1;
 		}
 		
 		novoProd->qntCategorias++;
 		printf("---------------------\n");
-	}
+		getchar();
+	}	
 	
-	printf("\nInforme o preço de custo do produto: ");
-	scanf("%f", &novoProd->precoCusto);	
+	do {
+		printf("\nInforme o preço de custo do produto: ");
+		fgets(entrada, sizeof(entrada), stdin);
+		limparEnter(entrada);			
+	} while(!somenteReais(entrada));
 	
-	printf("Informe o preço de venda do produto: ");
-	scanf("%f", &novoProd->precoUnidade);	
+	novoProd->precoCusto = atof(entrada);
 	
-	printf("\nInforme a quantidade em estoque: ");
-	scanf("%d", &novoProd->qntEstoque);	
+	do {
+		printf("Informe o preço de venda do produto: ");
+		fgets(entrada, sizeof(entrada), stdin);
+		limparEnter(entrada);			
+	} while(!somenteReais(entrada));
 	
-	printf("Informe o código do produto (ex: 1234): ");
-	scanf("%d", &novoProd->codigoProduto);	
+	novoProd->precoUnidade = atof(entrada);	
+	
+	do {
+		printf("\nInforme a quantidade em estoque: ");
+		fgets(entrada, sizeof(entrada), stdin);
+		limparEnter(entrada);			
+	} while(!somenteReais(entrada));
+	
+	novoProd->qntEstoque = atof(entrada);	
+	
+	do {
+		printf("Informe o código do produto (ex: 1234): ");
+		fgets(entrada, sizeof(entrada), stdin);
+		limparEnter(entrada);			
+	} while(!somenteReais(entrada));	
+	
+	novoProd->codigoProduto = atof(entrada);
 	
 	printf("\n| Produto cadastrado com sucesso!!\n\n");
 	qntProdutos++;
