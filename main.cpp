@@ -4,6 +4,7 @@
 #include <ctype.h>
 #include <locale.h>
 
+#define MAX_FUNC 100
 #define MAX_USERS 20
 #define MAX_CATEG 20
 #define MAX_SUBCATG 5
@@ -54,6 +55,17 @@ typedef struct {
 } Produtos;
 
 typedef struct {
+    char nomeFuncionario[50];
+    char cpf[50];
+    char numeroFolha[50];
+    char numeroPis[50];
+    char empregador[50];
+    char departamento[50];
+    char funcao[50];
+    char admissao[50];
+} Funcionario;
+
+typedef struct {
     char nome[50];
     char cpf[20];
     char email[50];
@@ -68,6 +80,7 @@ Categoria categorias[MAX_CATEG];
 Cliente clientes[MAX_CLIENTES];
 Empresa empresa[MAX_EMPRESAS];
 Usuario usuario[MAX_USERS];
+Funcionario funcionario[MAX_FUNC];
 
 int qntCategorias = 0;
 int qntProdutos = 0;
@@ -105,7 +118,6 @@ void exibirHeader(char mensagem[]) {
 	printf("------- %s: -------\n\n", mensagem);
 }
 
-//Inclusão - função de cadastrar categorias 
 void cadastrarCategoria() {	
 	int existe;
 	char op, entradaChar[20], entrada[50];
@@ -196,7 +208,6 @@ void listarCategorias() {
 	}
 }
 
-//Inclusão - função de cadastrar subcategorias 
 void cadastrarSubcategoria() {
 	char nomeNovaSubcat[50];
 	int idCategoria, existe;
@@ -271,8 +282,7 @@ void cadastrarProduto() {
 		novoProd->qntCategorias = 0;
 
 		system("cls");
-		exibirHeader("Cadastro Novo Produto");
-		
+		exibirHeader("Cadastro Novo Produto");		
 		printf("| Categorias cadastradas:\n");
 		
 		for(int i = 0; i < qntCategorias; i++)
@@ -448,8 +458,66 @@ void listarClientes() {
     }
 }
 
+void cadastrarFuncionario(Funcionario funcionario[], int *cadastro) {	
+    if (*cadastro >= MAX_FUNC) {
+        system("cls");
+        printf("Numero de funcionarios atingido!!!\n");
+        printf("O seu limite atual de Funcionários é de %i", MAX_USERS);
+        system("pause");
+        return;
+    }
+
+    int numeroCpf;
+    int index = *cadastro;
+    
+    Funcionario *novoFunc = &funcionario[index];
+
+    getchar();
+    system("cls");
+	exibirHeader("Cadastro novo funcionário");
+	
+    printf("Nome: ");
+    fgets(novoFunc->nomeFuncionario, sizeof(novoFunc->nomeFuncionario), stdin);
+    limparEnter(novoFunc->nomeFuncionario);
+
+    do {
+        printf("CPF: ");
+        fgets(novoFunc->cpf, sizeof(novoFunc->cpf), stdin);
+        limparEnter(novoFunc->cpf);
+        numeroCpf = strlen(novoFunc->cpf);
+    } while (!verificacao(numeroCpf, 11, "CPF") || !somenteReais(novoFunc->cpf));
+
+    printf("\nNumero da folha: ");
+    fgets(novoFunc->numeroFolha, sizeof(novoFunc->numeroFolha), stdin);
+    limparEnter(novoFunc->numeroFolha);
+
+    printf("Numero PIS: ");
+    fgets(novoFunc->numeroPis, sizeof(novoFunc->numeroPis), stdin);
+    limparEnter(novoFunc->numeroPis);
+
+    printf("\nNome do empregador: ");
+    fgets(novoFunc->empregador, sizeof(novoFunc->empregador), stdin);
+    limparEnter(novoFunc->empregador);
+
+    printf("Departamento: ");
+    fgets(novoFunc->departamento, sizeof(novoFunc->departamento), stdin);
+    limparEnter(novoFunc->departamento);
+
+    printf("Função: ");
+    fgets(novoFunc->funcao, sizeof(novoFunc->funcao), stdin);
+    limparEnter(novoFunc->funcao);
+
+    printf("\nDia da admissão: ");
+    fgets(novoFunc->admissao, sizeof(novoFunc->admissao), stdin);
+    limparEnter(novoFunc->admissao);
+
+    printf("\nFuncionario cadastrado!!!!\n");
+    (*cadastro)++;
+}
+
 void menuCadastrar() {
 	int op;
+	int cadastrofunc = 0;
 	
 	while(1) {
 		printf("| Menu - Cadastrar informações\n");
@@ -478,7 +546,7 @@ void menuCadastrar() {
 				cadastrarProduto();
 				break;
 			case 4:
-				//cadastrarFuncionario();
+				cadastrarFuncionario(funcionario, &cadastrofunc);
 				break;
 			case 5:
 				cadastrarCategoria();
