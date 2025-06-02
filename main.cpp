@@ -35,12 +35,16 @@ typedef struct {
 
 typedef struct {
 	char nome[50];
+	int qntVendas; //novo
+	float totalVendas; //novo
 } Subcategoria;
 
 typedef struct {
 	char nome[50];
 	Subcategoria subcategorias[MAX_SUBCATG];
 	int qntSubcategorias;
+	int qntVendas; //novo
+	float totalVendas; //novo
 } Categoria;
 
 typedef struct {
@@ -50,9 +54,11 @@ typedef struct {
 	int idxCategoria;
 	int qntCategorias;
 	int idxSubcategoria;
+	int qntVendas; //novo
 	float precoUnidade;
 	float precoCusto;
-} Produtos;
+	float totalVendas; //novo
+} Produto;
 
 typedef struct {
     char nomeFuncionario[50];
@@ -75,7 +81,7 @@ typedef struct {
     float totalComprado; //novo
 } Cliente;
 
-Produtos produtos[MAX_PRODUTOS];
+Produto produtos[MAX_PRODUTOS];
 Categoria categorias[MAX_CATEG];
 Cliente clientes[MAX_CLIENTES];
 Empresa empresa[MAX_EMPRESAS];
@@ -267,7 +273,7 @@ void cadastrarProduto() {
 		return;
 	}
 	
-	Produtos *novoProd = &produtos[qntProdutos];
+	Produto *novoProd = &produtos[qntProdutos];
 	char entrada[20];
 	
 	exibirHeader("Cadastro Novo Produto");
