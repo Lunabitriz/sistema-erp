@@ -94,7 +94,7 @@ int totalClientes = 0;
 
 int verificacao(int entrada, int tamanhoEsperado, char *nome) {
     if (entrada != tamanhoEsperado) {
-        printf("\n%s Inv√°lido!!\n\n", nome);
+        printf("\n%s Inv·lido!!\n\n", nome);
         return 0;
     }
     return 1;
@@ -126,10 +126,12 @@ void exibirHeader(char mensagem[]) {
 
 void cadastrarCategoria() {	
 	int existe;
-	char op, entrada[50];
+	char op, entradaChar[20], entrada[50];
 	
 	Categoria *novaCategoria = &categorias[qntCategorias];
 	novaCategoria->qntSubcategorias = 0;
+	
+	getchar();
 	
 	do {
 		existe = 0;
@@ -141,7 +143,7 @@ void cadastrarCategoria() {
 		
 		for(int i = 0; i < qntCategorias; i++) {
 			if(strcmp(novaCategoria->nome, categorias[i].nome) == 0) {
-				printf("\nEsta categoria j√° foi cadastrada! Por favor, informe outro nome!\n");
+				printf("\nEsta categoria j· foi cadastrada! Por favor, informe outro nome!\n");
 				existe = 1;
 				break;
 			}
@@ -156,13 +158,13 @@ void cadastrarCategoria() {
 			printf("| Categoria criada: %s", novaCategoria->nome);			
 			printf("\n---------------------------");			
 			printf("\nDeseja criar uma subcategoria para %s? (s/n): ", novaCategoria->nome);
-			fgets(entrada, sizeof(entrada), stdin);
-			limparEnter(entrada);
+			fgets(entradaChar, sizeof(entradaChar), stdin);
+			limparEnter(entradaChar);
 			
-			op = tolower(entrada[0]);
+			op = tolower(entradaChar[0]);
 			
-			if(op != 's' && op != 'n' || strlen(entrada) > 1) system("cls");				
-		} while(op != 's' && op != 'n' || strlen(entrada) > 1);
+			if(op != 's' && op != 'n' || strlen(entradaChar) > 1) system("cls");				
+		} while(op != 's' && op != 'n' || strlen(entradaChar) > 1);
 		
 		if(op == 's') {			
 			do {
@@ -174,7 +176,7 @@ void cadastrarCategoria() {
 				
 				for(int i = 0; i < novaCategoria->qntSubcategorias; i++) {
 					if(strcmp(entrada, novaCategoria->subcategorias[i].nome) == 0) {
-						printf("\nEsta subcategoria j√° foi cadastrada! Por favor, informe outro nome!\n");
+						printf("\nEsta subcategoria j· foi cadastrada! Por favor, informe outro nome!\n");
 						existe = 1;
 						break;
 					} 
@@ -226,11 +228,11 @@ void cadastrarSubcategoria() {
 			
 		do {				
 			printf("---------------------\n\n");
-			printf("Escolha uma categoria entre 1 a %d (informe apenas n√∫meros): ", qntCategorias);
+			printf("Escolha uma categoria entre 1 a %d (informe apenas n˙meros): ", qntCategorias);
 			scanf("%d", &idCategoria);			
 			
 			if(idCategoria < 1 || idCategoria > qntCategorias) 
-				printf("\nSelecione uma op√ß√£o v√°lida!\n");
+				printf("\nSelecione uma opÁ„o v·lida!\n");
 		} while(idCategoria < 1 || idCategoria > qntCategorias);		
 		
 		getchar();
@@ -249,7 +251,7 @@ void cadastrarSubcategoria() {
 			
 			for(int i = 0; i < novaSubcategoria->qntSubcategorias; i++) {
 				if(strcmp(nomeNovaSubcat, categorias[idCategoria - 1].subcategorias[i].nome) == 0) {
-					printf("\nEsta subcategoria j√° foi cadastrada! Por favor, pressione enter e informe outro nome!\n\n");
+					printf("\nEsta subcategoria j· foi cadastrada! Por favor, pressione enter e informe outro nome!\n\n");
 					existe = 1;
 					getchar();
 					break;
@@ -276,11 +278,11 @@ void cadastrarProduto() {
 	
 	exibirHeader("Cadastro Novo Produto");
 	
+	getchar();
 	printf("Informe o nome do produto: ");
 	fgets(novoProd->nome, sizeof(novoProd->nome), stdin);
 	limparEnter(novoProd->nome);
 	
-	// Mostra essa op√ß√£o apenas se houver categorias
 	if(qntCategorias > 0) {
 		int idxCategoria, idxSubcategoria;
 		novoProd->qntCategorias = 0;
@@ -300,7 +302,6 @@ void cadastrarProduto() {
 		novoProd->idxCategoria = idxCategoria - 1;
 		Categoria *categoriaSelecionada = &categorias[novoProd->idxCategoria];
 		
-		// Mostra essa op√ß√£o apenas se houver subcategorias > categorias
 		if(categoriaSelecionada->qntSubcategorias > 0) {	
 			system("cls");
 			exibirHeader("Cadastro Novo Produto");						
@@ -330,7 +331,7 @@ void cadastrarProduto() {
 	}		
 	
 	do {
-		printf("\nInforme o pre√ßo de venda do produto: ");
+		printf("\nInforme o preÁo de venda do produto: ");
 		fgets(entrada, sizeof(entrada), stdin);
 		limparEnter(entrada);			
 	} while(!somenteReais(entrada));
@@ -338,7 +339,7 @@ void cadastrarProduto() {
 	novoProd->precoUnidade = atof(entrada);	
 	
 	do {
-		printf("Informe o pre√ßo de custo do produto: ");
+		printf("Informe o preÁo de custo do produto: ");
 		fgets(entrada, sizeof(entrada), stdin);
 		limparEnter(entrada);			
 	} while(!somenteReais(entrada));
@@ -354,7 +355,7 @@ void cadastrarProduto() {
 	novoProd->qntEstoque = atof(entrada);	
 	
 	do {
-		printf("Informe o c√≥digo do produto (ex: 1234): ");
+		printf("Informe o cÛdigo do produto (ex: 1234): ");
 		fgets(entrada, sizeof(entrada), stdin);
 		limparEnter(entrada);			
 	} while(!somenteReais(entrada));	
@@ -367,7 +368,7 @@ void cadastrarProduto() {
 
 void listarProdutos() {
 	if(qntProdutos == 0) {
-		printf("N√£o h√° produtos cadastrados no estoque!\n\n");
+		printf("N„o h· produtos cadastrados no estoque!\n\n");
 		return;
 	}
 	
@@ -376,21 +377,21 @@ void listarProdutos() {
 	for(int i = 0; i < qntProdutos; i++) {
 		printf("| Produto %d:\n\n", i + 1);
 		
-		printf("C√≥digo do produto: %d\n", produtos[i].codigoProduto);
+		printf("CÛdigo do produto: %d\n", produtos[i].codigoProduto);
 		printf("Nome do produto: %s\n", produtos[i].nome);
-		printf("Pre√ßo de custo: R$%.2f\n", produtos[i].precoCusto);
-		printf("Pre√ßo de venda: R$%.2f\n", produtos[i].precoUnidade);		
+		printf("PreÁo de custo: R$%.2f\n", produtos[i].precoCusto);
+		printf("PreÁo de venda: R$%.2f\n", produtos[i].precoUnidade);		
 		printf("Quantidade em estoque: %d\n", produtos[i].qntEstoque);
 		
 		if(produtos[i].qntCategorias > 0)
 			printf("Categorias do produto: %s\n", categorias[produtos[i].idxCategoria]);
 		else
-			printf("Categorias do produto: n√£o informado\n");
+			printf("Categorias do produto: n„o informado\n");
 			
 		if(categorias[produtos[i].idxCategoria].qntSubcategorias > 0)
 			printf("Subcategorias do produto: %s\n", categorias[produtos[i].idxCategoria].subcategorias[produtos[i].idxSubcategoria].nome);
 		else 
-			printf("Subcategorias do produto: n√£o informado\n");
+			printf("Subcategorias do produto: n„o informado\n");
 			
 		printf("\n------------------------\n");
 	}
@@ -407,6 +408,7 @@ void cadastrarCliente() {
 
     exibirHeader("Cadastro de Cliente");
 
+	getchar();
     printf("Informe seu nome: ");
     fgets(novoCliente->nome, sizeof(novoCliente->nome), stdin);
     limparEnter(novoCliente->nome);
@@ -419,20 +421,21 @@ void cadastrarCliente() {
 	    sizeCpf = strlen(novoCliente->cpf);
 	} while (!verificacao(sizeCpf, 11, "CPF"));
 
+	//getchar();
 	printf("Informe seu e-mail: ");
 	fgets(novoCliente->email, sizeof(novoCliente->email), stdin);
 	limparEnter(novoCliente->email);	
 	
 	printf("Informe sua idade: ");
 	
-	while (1) { // Garante que n√£o h√° lixo no buffer antes de scanf
+	while (1) { // Garante que n„o h· lixo no buffer antes de scanf
 		char entrada[10];		
 		fgets(entrada, sizeof(entrada), stdin);		
 		
 		if(sscanf(entrada, "%d", &novoCliente->idade) == 1 && novoCliente->idade > 0)
 		    break;
 		else 
-		    printf("Idade inv√°lida. Tente novamente: ");
+		    printf("Idade inv·lida. Tente novamente: ");
 	}
 	
 	totalClientes++;
@@ -465,7 +468,7 @@ void cadastrarFuncionario(Funcionario funcionario[], int *cadastro) {
     if (*cadastro >= MAX_FUNC) {
         system("cls");
         printf("Numero de funcionarios atingido!!!\n");
-        printf("O seu limite atual de Funcion√°rios √© de %i", MAX_USERS);
+        printf("O seu limite atual de Funcion·rios È de %i", MAX_USERS);
         system("pause");
         return;
     }
@@ -475,15 +478,13 @@ void cadastrarFuncionario(Funcionario funcionario[], int *cadastro) {
     
     Funcionario *novoFunc = &funcionario[index];
 
-    //getchar();
+    getchar();
     system("cls");
-	exibirHeader("Cadastro novo funcion√°rio");
+	exibirHeader("Cadastro novo funcion·rio");
 	
     printf("Nome: ");
     fgets(novoFunc->nomeFuncionario, sizeof(novoFunc->nomeFuncionario), stdin);
     limparEnter(novoFunc->nomeFuncionario);
-    
-    // Email
 
     do {
         printf("CPF: ");
@@ -508,70 +509,62 @@ void cadastrarFuncionario(Funcionario funcionario[], int *cadastro) {
     fgets(novoFunc->departamento, sizeof(novoFunc->departamento), stdin);
     limparEnter(novoFunc->departamento);
 
-    printf("Fun√ß√£o: ");
+    printf("FunÁ„o: ");
     fgets(novoFunc->funcao, sizeof(novoFunc->funcao), stdin);
     limparEnter(novoFunc->funcao);
 
-    printf("\nDia da admiss√£o: ");
+    printf("\nDia da admiss„o: ");
     fgets(novoFunc->admissao, sizeof(novoFunc->admissao), stdin);
     limparEnter(novoFunc->admissao);
-    
-    // N√∫mero de identifica√ß√£o na empresa
 
     printf("\nFuncionario cadastrado!!!!\n");
     (*cadastro)++;
 }
 
-//listar funcion√°rios cadastrados
-
 void menuCadastrar() {
-	char op, entrada[15];
+	int op;
 	int cadastrofunc = 0;
 	
 	while(1) {
-		printf("| Menu - Cadastrar informa√ß√µes\n");
+		printf("| Menu - Cadastrar informaÁıes\n");
 		printf("---------------------------\n\n");
 		
 		printf("1- Cadastrar nova venda\n");
 		printf("2- Cadastrar cliente\n");
 		printf("3- Cadastrar produto\n");
-		printf("4- Cadastrar funcion√°rio\n");
+		printf("4- Cadastrar funcion·rio\n");
 		printf("5- Cadastrar categoria\n");
 		printf("6- Cadastrar subcategoria\n");
-		printf("7- Voltar ao menu\n\n");
-			
-		printf("-> Escolha uma op√ß√£o: ");
-		fgets(entrada, sizeof(entrada), stdin);
-		limparEnter(entrada);
-		
-		op = tolower(entrada[0]);
+		printf("7- Voltar ao menu\n\n");	
+		printf("-> Escolha uma opÁ„o: ");
+		scanf("%d", &op);
 		
 		system("cls");
 		
 		switch(op) {
-			case '1':
+			case 1:
 				//cadastrarVenda();
 				break;
-			case '2':
+			case 2:
 				cadastrarCliente();
 				break;
-			case '3':
+			case 3:
 				cadastrarProduto();
 				break;
-			case '4':
+			case 4:
 				cadastrarFuncionario(funcionario, &cadastrofunc);
 				break;
-			case '5':
+			case 5:
 				cadastrarCategoria();
 				break;
-			case '6':
+			case 6:
 				cadastrarSubcategoria();
 				break;
-			case '7':
+			case 7:
 				printf("Voltando para o menu painel!\n\n");
 				return;
 			default:
-				printf("Escolha uma op√ß√£o v√°lida!\n\n");
+				printf("Escolha uma opÁ„o v·lida!\n\n");
 		}
 		
 		system("pause");
@@ -580,48 +573,44 @@ void menuCadastrar() {
 }
 
 void menuListar() {
-	char op, entrada[15];
+	int op;
 	
 	while(1) {
-		printf("| Menu - Listar informa√ß√µes\n");
+		printf("| Menu - Listar informaÁıes\n");
 		printf("---------------------------\n\n");
 		
 		printf("1- Listar produtos\n");
 		printf("2- Listar clientes\n");
-		printf("3- Listar funcion√°rios\n");
+		printf("3- Listar funcion·rios\n");
 		printf("4- Listar vendas\n");
 		printf("5- Listar categorias\n");
-		printf("6- Voltar ao menu\n\n");
-		
-		printf("-> Escolha uma op√ß√£o: ");
-		fgets(entrada, sizeof(entrada), stdin);
-		limparEnter(entrada);
-		
-		op = tolower(entrada[0]);
+		printf("6- Voltar ao menu\n\n");		
+		printf("-> Escolha uma opÁ„o: ");
+		scanf("%d", &op);
 		
 		system("cls");
 		
 		switch(op) {
-			case '1':
+			case 1:
 				listarProdutos();
 				break;
-			case '2':
+			case 2:
 				listarClientes();
 				break;
-			case '3':
+			case 3:
 				//listarFuncionario();
 				break;
-			case '4':
+			case 4:
 				//listarVendas();
 				break;
-			case '5':
+			case 5:
 				listarCategorias();
 				break;
-			case '6':
+			case 6:
 				printf("Voltando para o menu painel!\n\n");
 				return;
 			default:
-				printf("Escolha uma op√ß√£o v√°lida!\n\n");
+				printf("Escolha uma opÁ„o v·lida!\n\n");
 		}
 		
 		system("pause");
@@ -630,36 +619,32 @@ void menuListar() {
 }
 
 void menuEditar() {
-	char op, entrada[15];
+	int op;
 	
 	while(1) {
-		printf("| Menu - Editar informa√ß√µes\n");
+		printf("| Menu - Editar informaÁıes\n");
 		printf("---------------------------\n\n");
 		
 		printf("1- Editar venda\n");
 		printf("2- Remover venda\n");
 		printf("3- Voltar ao menu\n\n");
-		
-		printf("-> Escolha uma op√ß√£o: ");
-		fgets(entrada, sizeof(entrada), stdin);
-		limparEnter(entrada);
-		
-		op = tolower(entrada[0]);
+		printf("-> Escolha uma opÁ„o: ");
+		scanf("%d", &op);
 		
 		system("cls");
 		
 		switch(op) {
-			case '1':
+			case 1:
 				//editarVenda();
 				break;
-			case '2':
+			case 2:
 				//removerVenda();
 				break;
-			case '3':
+			case 3:
 				printf("Voltando para o menu painel!\n\n");
 				return;
 			default:
-				printf("Escolha uma op√ß√£o v√°lida!\n\n");
+				printf("Escolha uma opÁ„o v·lida!\n\n");
 		}
 		
 		system("pause");
@@ -672,46 +657,42 @@ void exibirRelatorio() {
 }
 
 int menuPainel() {
-	char op, entrada[15];
+	int op;
 	
 	while(1) {
 		printf("| Menu Painel\n");
 		printf("---------------------------\n\n");				
 		
-		printf("1- Cadastrar informa√ß√µes\n");				
-		printf("2- Listar informa√ß√µes\n");			
+		printf("1- Cadastrar informaÁıes\n");				
+		printf("2- Listar informaÁıes\n");			
 		printf("3- Editar\n");		
-		printf("4- Acessar relat√≥rio\n");		
-		printf("5- Voltar ao menu\n\n");
-		
-		printf("-> Escolha uma op√ß√£o: ");
-		fgets(entrada, sizeof(entrada), stdin);
-		limparEnter(entrada);
-		
-		op = tolower(entrada[0]);
+		printf("4- Acessar relatÛrio\n");		
+		printf("5- Voltar ao menu\n\n");		
+		printf("-> Escolha uma opÁ„o: ");
+		scanf("%d", &op);
 		
 		system("cls");
 		
 		switch(op) {
-			case '1':
+			case 1:
 				menuCadastrar();
 				break;
-			case '2':
+			case 2:
 				menuListar();
 				break;				
-			case '3':
+			case 3:
 				menuEditar();
 				break;				
-			case '4':
-				printf("Relat√≥rio acessado!\n\n");
+			case 4:
+				printf("RelatÛrio acessado!\n\n");
 				//exibirRelatorio();
 				break;				
-			case '5':
+			case 5:
 				printf("Voltando para o menu!\n\n");
 				return 2;
 				break;					
 			default:
-				printf("Escolha uma op√ß√£o v√°lida!\n\n");
+				printf("Escolha uma opÁ„o v·lida!\n\n");
 		}
 		
 		system("pause");
@@ -726,6 +707,7 @@ void cadastroUsuario(Usuario usuario[], int *cadastro) {
     
     Usuario *novoUsuario = &usuario[index];
 
+    getchar();
 	exibirHeader("Bem-Vindo(a)!!");
 
     printf("Email: ");
@@ -739,30 +721,30 @@ void cadastroUsuario(Usuario usuario[], int *cadastro) {
         tamanhoCpf = strlen(novoUsuario->cpf);
     } while (!verificacao(tamanhoCpf, 11, "CPF") || !somenteReais(novoUsuario->cpf));
 
-    printf("Informe Nome de usu√°rio: ");
+    printf("Informe Nome de usu·rio: ");
     fgets(novoUsuario->usuario, sizeof(novoUsuario->usuario), stdin);
     limparEnter(novoUsuario->usuario);
     
     do {
-        printf("Informe uma senha com no m√≠nimo 8 caracteres: ");
+        printf("Informe uma senha com no mÌnimo 8 caracteres: ");
         fgets(novoUsuario->senha, sizeof(novoUsuario->senha), stdin);
         limparEnter(novoUsuario->senha);
         tamanhoSenha = strlen(novoUsuario->senha);
         
         if(tamanhoSenha < 8)
-        	printf("\nSenha inv√°lida!!\n\n");
+        	printf("\nSenha inv·lida!!\n\n");
     } while (tamanhoSenha < 8);
 
     (*cadastro)++;
-    printf("\n\nUsu√°rio cadastrado com sucesso!!!\n");
+    printf("\n\nUsu·rio cadastrado com sucesso!!!\n");
 }
 
-//Ainda n√£o est√° sendo usado, pois ser√° criado um menu de empresas por usu√°rio
+//Ainda n„o est· sendo usado, pois ser· criado um menu de empresas por usu·rio
 void cadastroEmpresa(Empresa empresa[], int *cadastroEM) {
     if(*cadastroEM >= MAX_EMPRESAS) {
         system("cls");
         printf("\nLimite de cadastros Atingido!!");
-        printf("\nSeu limite de CNPJ atual √© %i \n", MAX_EMPRESAS);
+        printf("\nSeu limite de CNPJ atual È %i \n", MAX_EMPRESAS);
         system("pause");
         return;
     }
@@ -773,6 +755,7 @@ void cadastroEmpresa(Empresa empresa[], int *cadastroEM) {
     Empresa *novaEmpresa = &empresa[index];
 
     system("cls");
+    getchar();
 
     printf("\nInforme o nome da sua empresa: ");
     fgets(novaEmpresa->nomeEmpresa, sizeof(novaEmpresa->nomeEmpresa), stdin);
@@ -806,9 +789,10 @@ void login(Usuario usuario[], int totalUsuarios) {
     int encontrado = 0;
 
     system("cls");
+    getchar();
 
     exibirHeader("Login");
-    printf("Usu√°rio: ");
+    printf("Usu·rio: ");
     fgets(nomeUsuario, sizeof(nomeUsuario), stdin);
     limparEnter(nomeUsuario);
 
@@ -825,7 +809,7 @@ void login(Usuario usuario[], int totalUsuarios) {
     
     nomeUsuario[0] = toupper(nomeUsuario[0]);
 	    
-    encontrado = 1; // Adicionei para facilitar o acesso/teste de outras fun√ß√µes do sistema
+    encontrado = 1; // Adicionei para facilitar o acesso/teste de outras funÁıes do sistema
 
     if(encontrado) {
         printf("\nLogin bem-sucedido! Bem-vindo(a) de volta, %s!\n\n", nomeUsuario);
@@ -833,44 +817,44 @@ void login(Usuario usuario[], int totalUsuarios) {
         system("cls");
         menuPainel();
     } else
-        printf("\nUsu√°rio ou senha incorretos!\n");
+        printf("\nUsu·rio ou senha incorretos!\n");
 }
 
 void menuInicial() {
-	char op, entrada[15];
+	int op;	
 	int cadastrosUsuario = 0;
 	
 	while(1) {
 		exibirHeader("Menu login/cadastro");
 		printf("1- Login\n");
-		printf("2- Cadastrar novo usu√°rio\n");
+		printf("2- Cadastrar novo usu·rio\n");
 		printf("3- Sair do sistema\n\n");
-		
-		printf("-> Escolha uma op√ß√£o: ");
+		printf("-> Escolha uma opÁ„o: ");
+		char entrada[10];
 		fgets(entrada, sizeof(entrada), stdin);
 		limparEnter(entrada);
-		
-		op = tolower(entrada[0]);
+}
+	
 		
 		system("cls");
 		
 		switch(op) {
-			case '1':
+			case 1:
 				login(usuario, cadastrosUsuario);
 				break;
-			case '2':
+			case 2:
 				cadastroUsuario(usuario, &cadastrosUsuario);
 				break;
-			case '3':
+			case 3:
 				printf("Encerrando sistema...\n\n");
 				abort();				
 			default:
-				printf("Op√ß√£o inv√°lida!!\n\n");
+				printf("OpÁ„o inv·lida!!\n\n");
 		}
 		
 		system("pause");
 		system("cls");
-	}
+	
 	
 	if(menuPainel() == 2) menuInicial(); 
 }
