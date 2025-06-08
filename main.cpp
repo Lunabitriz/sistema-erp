@@ -7,6 +7,7 @@
 #define MAX_FUNC 100
 #define MAX_USERS 20
 #define MAX_CATEG 20
+#define MAX_VENDAS 20
 #define MAX_SUBCATG 5
 #define MAX_CLIENTES 20
 #define MAX_EMPRESAS 5
@@ -69,12 +70,24 @@ typedef struct {
     char departamento[50];
     char funcao[50];
     char admissao[50];
+    int idFuncionario; //novo
 } Funcionario;
+
+typedef struct {
+	int idProduto;
+	int quantidade;
+	char formaPagamento[20];
+	char tipoOperacao[15];	
+	int idClienteFiado; //para remover
+	float totalVenda;
+	float valorDevido; //para remover
+} Venda;
 
 typedef struct {
     char nome[50];
     char cpf[20];
     char email[50];
+    char tel[20]; //novo
     int idade[20];
     int qntCompras; //novo
     float valorPendente; //novo
@@ -86,11 +99,13 @@ Categoria categorias[MAX_CATEG];
 Cliente clientes[MAX_CLIENTES];
 Empresa empresa[MAX_EMPRESAS];
 Usuario usuario[MAX_USERS];
+Venda venda[MAX_VENDAS];
 Funcionario funcionario[MAX_FUNC];
 
 int qntCategorias = 0;
 int qntProdutos = 0;
 int totalClientes = 0;
+int qntVendas = 0;
 
 int verificacao(int entrada, int tamanhoEsperado, char *nome) {
     if (entrada != tamanhoEsperado) {
@@ -524,6 +539,172 @@ void cadastrarFuncionario(Funcionario funcionario[], int *cadastro) {
 
 //listar funcionários cadastrados
 
+void listarVendas() {
+	if(qntVendas == 0) {
+		printf("Não há nenhuma venda cadastrada!\n\n");
+		return;
+	}
+	
+	printf("--------- Vendas cadastradas: ---------\n\n");
+	
+	for(int i = 0 ; i < qntVendas ; i++) {
+		printf("| Venda %d: \n", i + 1);
+		printf("Nome do produto: %s\n", produtos[i].nome);
+		
+		if(qntCategorias >= 1) {
+			//printf("Categoria: %s.\n", venda[i].categoriaProduto);
+			//if(categorias[])
+			//printf("SubCategoria: %s.\n", venda[i].categoriaProduto);
+		}
+		
+		printf("\tCódigo do produto: %d\n", produtos[i].codigoProduto);
+		printf("\tQuantidade: %d\n", venda[i].quantidade);
+		printf("\tForma de pagamento: %s\n", venda[i].formaPagamento);
+		
+		if(strcmp(venda[i].formaPagamento, "Cartão") == 0) 
+			printf("\tTipo de operação: %s\n", venda[i].tipoOperacao);
+    
+    
+		if(strcmp(venda[i].formaPagamento, "Fiado") == 0) {
+			int idCliente = venda[i].idClienteFiado;
+			
+			if(idCliente >= 0) 
+				printf("\tQuem deve: %s\n", clientes[idCliente].nome);
+			
+			printf("\tQuanto deve: R$%.2f\n", venda[i].valorDevido);
+		}
+		printf("---------------------------------\n\n");
+	}
+}
+
+void tipoOperacao(int op, int vendaIndex) {
+	system("cls");
+	
+	printf("1. Crédito.\n");
+	printf("2. Débito.\n\n");
+	printf("Informe o tipo de operação desejado: ");
+	scanf("%d", &op);
+	
+	//ideia -> em crédito perguntar a quantidade de parcelas
+	
+	switch(op) {
+		case 1:
+			printf("\nVenda cadastrada com sucesso!!!\n\n");
+			strcpy(venda[vendaIndex].tipoOperacao, "Crédito");
+			break;
+		case 2:
+			printf("\nVenda cadastrada com sucesso!!!\n\n");
+			strcpy(venda[vendaIndex].tipoOperacao, "Débito");
+			break;
+		default:
+			printf("Erro! Escolha uma opção válida.\n\n");
+	}
+}
+
+void formaPagamento(int op, int vendaIndex) {
+	int op2;	
+
+	system("cls");
+	
+	printf("1- Cartão.\n");
+	printf("2- Boleto.\n");
+	printf("3- Pix.\n");
+	printf("4- Dinheiro.\n\n");
+	printf("Informe a forma de pagamento: ");
+	scanf("%d", &op);
+	
+	switch(op) {
+		case 1:
+			strcpy(venda[vendaIndex].formaPagamento, "Cartão");
+			strcpy(venda[vendaIndex].tipoOperacao, "Cartão");
+			tipoOperacao(op, vendaIndex);
+			break;
+		case 2:
+			printf("\nVenda cadastrada com sucesso!!!\n\n");
+			strcpy(venda[vendaIndex].formaPagamento, "Boleto");
+			strcpy(venda[vendaIndex].tipoOperacao, "N/A");
+			break;
+		case 3:
+			printf("\nVenda cadastrada com sucesso!!!\n");
+			strcpy(venda[vendaIndex].formaPagamento, "Pix");
+			strcpy(venda[vendaIndex].tipoOperacao, "N/A");
+			break;
+		case 4:
+			printf("\nVenda cadastrada com sucesso!!!\n");
+			strcpy(venda[vendaIndex].formaPagamento, "Dinheiro");
+			strcpy(venda[vendaIndex].tipoOperacao, "N/A");
+			break;
+		default:
+			printf("\nErro! Escolha uma opção válida!\n\n");
+	}
+}
+
+void cadastrarVenda() {
+	char op;
+	int idProduto;
+	float valorTotal = 0;
+	
+	Venda *novaVenda = &venda[qntVendas];
+	
+	if(qntProdutos == 0) {
+		printf("Não há produtos cadastrados no estoque!\n\n");
+		return;
+	}
+	
+	if(qntVendas >= MAX_VENDAS) {
+		printf("O estoque está cheio!\n\n");
+		return;
+	}
+	
+	do {
+		printf("Produtos cadastrados:\n\n");	
+			
+		for(int i = 0 ; i < qntProdutos ; i++) 
+			printf("Produto %d: %s.\n", i + 1, produtos[i].nome);
+	
+		printf("\n");
+	
+		do {
+			printf("Escolha um produto de 1 a %d: ", qntProdutos);
+			scanf("%d", &idProduto);
+		} while(idProduto < 1 || idProduto > qntProdutos);
+		
+		venda[qntVendas].idProduto = idProduto - 1;
+		
+		system("pause");
+		system("cls");
+		
+		printf("Informe a quantidade de produtos vendidos: ");
+		scanf("%d", &venda[qntVendas].quantidade);
+		
+		system("pause");
+		system("cls");		
+		
+		formaPagamento(0, qntVendas);
+		
+		valorTotal = venda[qntVendas].quantidade * produtos[idProduto - 1].precoUnidade;
+		printf("Valor total: %.2f\n\n", valorTotal);
+		
+		novaVenda->totalVenda = valorTotal;		
+		produtos[idProduto - 1].totalVendas += valorTotal;
+		produtos[idProduto - 1].qntVendas++;
+		
+		categorias[produtos[idProduto - 1].idxCategoria].qntVendas++;
+		categorias[produtos[idProduto - 1].idxCategoria].totalVendas += valorTotal;
+		categorias[produtos[idProduto - 1].idxCategoria].subcategorias[produtos[idProduto - 1].idxSubcategoria].qntVendas++;
+		categorias[produtos[idProduto - 1].idxCategoria].subcategorias[produtos[idProduto - 1].idxSubcategoria].totalVendas += valorTotal;
+		
+		produtos[idProduto - 1].qntEstoque--;
+		qntVendas++;
+		
+		fflush(stdin);
+		printf("Deseja cadastrar mais alguma venda? (S/N)\n");
+		scanf("%c", &op);
+		
+		system("cls");
+	} while (op == 'S' || op == 's');
+}
+
 void menuCadastrar() {
 	char op, entrada[15];
 	int cadastrofunc = 0;
@@ -550,7 +731,7 @@ void menuCadastrar() {
 		
 		switch(op) {
 			case '1':
-				//cadastrarVenda();
+				cadastrarVenda();
 				break;
 			case '2':
 				cadastrarCliente();
@@ -568,7 +749,6 @@ void menuCadastrar() {
 				cadastrarSubcategoria();
 				break;
 			case '7':
-				//printf("Voltando para o menu painel!\n\n");
 				return;
 			default:
 				printf("Escolha uma opção válida!\n\n");
@@ -612,13 +792,12 @@ void menuListar() {
 				//listarFuncionario();
 				break;
 			case '4':
-				//listarVendas();
+				listarVendas();
 				break;
 			case '5':
 				listarCategorias();
 				break;
 			case '6':
-				//printf("Voltando para o menu painel!\n\n");
 				return;
 			default:
 				printf("Escolha uma opção válida!\n\n");
@@ -762,7 +941,6 @@ void menuEditarRemover() {
 				menuRemover();
 				break;
 			case '3':
-				//printf("Voltando para o menu painel!\n\n");  Navegação mais fluída
 				return;
 			default:
 				printf("Escolha uma opção válida!\n\n");
@@ -813,7 +991,6 @@ int menuPainel() {
 				//exibirRelatorio();
 				break;				
 			case '5':
-				//printf("Voltando para o menu!\n\n");
 				return 2;
 				break;					
 			default:
