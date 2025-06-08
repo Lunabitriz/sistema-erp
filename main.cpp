@@ -568,7 +568,7 @@ void menuCadastrar() {
 				cadastrarSubcategoria();
 				break;
 			case '7':
-				printf("Voltando para o menu painel!\n\n");
+				//printf("Voltando para o menu painel!\n\n");
 				return;
 			default:
 				printf("Escolha uma opção válida!\n\n");
@@ -618,7 +618,7 @@ void menuListar() {
 				listarCategorias();
 				break;
 			case '6':
-				printf("Voltando para o menu painel!\n\n");
+				//printf("Voltando para o menu painel!\n\n");
 				return;
 			default:
 				printf("Escolha uma opção válida!\n\n");
@@ -637,9 +637,13 @@ void menuEditar() {
 		printf("---------------------------\n\n");
 		
 		printf("1- Editar venda\n");
-		printf("2- Remover venda\n");
-		printf("3- Voltar ao menu\n\n");
-		
+		printf("2- Editar cliente\n");
+		printf("3- Editar produto\n");
+		printf("4- Editar funcionário\n");
+		printf("5- Editar categoria\n");
+		printf("6- Editar subcategoria\n");
+		printf("7- Voltar ao menu\n\n");
+			
 		printf("-> Escolha uma opção: ");
 		fgets(entrada, sizeof(entrada), stdin);
 		limparEnter(entrada);
@@ -653,10 +657,112 @@ void menuEditar() {
 				//editarVenda();
 				break;
 			case '2':
-				//removerVenda();
+				//editarCliente();
 				break;
 			case '3':
-				printf("Voltando para o menu painel!\n\n");
+				//editarProduto();
+				break;
+			case '4':
+				//editarFuncionario();
+				break;
+			case '5':
+				//editarCategoria();
+				break;
+			case '6':
+				//editarSubcategoria();
+				break;
+			case '7':
+				return;
+			default:
+				printf("Escolha uma opção válida!\n\n");
+		}
+		
+		system("pause");
+		system("cls");
+	}
+}
+
+void menuRemover() {
+	char op, entrada[15];
+	
+	while(1) {
+		printf("| Menu - Remover informações\n");
+		printf("---------------------------\n\n");
+		
+		printf("1- Remover venda\n");
+		printf("2- Remover cliente\n");
+		printf("3- Remover produto\n");
+		printf("4- Remover funcionário\n");
+		printf("5- Remover categoria\n");
+		printf("6- Remover subcategoria\n");
+		printf("7- Voltar ao menu\n\n");
+			
+		printf("-> Escolha uma opção: ");
+		fgets(entrada, sizeof(entrada), stdin);
+		limparEnter(entrada);
+		
+		op = tolower(entrada[0]);
+		
+		system("cls");
+		
+		switch(op) {
+			case '1':
+				//removerVenda();
+				break;
+			case '2':
+				//removerCliente();
+				break;
+			case '3':
+				//removerProduto();
+				break;
+			case '4':
+				//removerFuncionario();
+				break;
+			case '5':
+				//removerCategoria();
+				break;
+			case '6':
+				//removerSubcategoria();
+				break;
+			case '7':
+				return;
+			default:
+				printf("Escolha uma opção válida!\n\n");
+		}
+		
+		system("pause");
+		system("cls");
+	}
+}
+
+void menuEditarRemover() {
+	char op, entrada[15];
+	
+	while(1) {
+		printf("| Menu - Editar/remover informações\n");
+		printf("---------------------------\n\n");
+		
+		printf("1- Editar\n");
+		printf("2- Remover\n");
+		printf("3- Voltar ao menu\n\n");
+		
+		printf("-> Escolha uma opção: ");
+		fgets(entrada, sizeof(entrada), stdin);
+		limparEnter(entrada);
+		
+		op = tolower(entrada[0]);
+		
+		system("cls");
+		
+		switch(op) {
+			case '1':
+				menuEditar();
+				break;
+			case '2':
+				menuRemover();
+				break;
+			case '3':
+				//printf("Voltando para o menu painel!\n\n");  Navegação mais fluída
 				return;
 			default:
 				printf("Escolha uma opção válida!\n\n");
@@ -680,7 +786,7 @@ int menuPainel() {
 		
 		printf("1- Cadastrar informações\n");				
 		printf("2- Listar informações\n");			
-		printf("3- Editar\n");		
+		printf("3- Editar/remover informações\n");		
 		printf("4- Acessar relatório\n");		
 		printf("5- Voltar ao menu\n\n");
 		
@@ -700,14 +806,14 @@ int menuPainel() {
 				menuListar();
 				break;				
 			case '3':
-				menuEditar();
+				menuEditarRemover();
 				break;				
 			case '4':
 				printf("Relatório acessado!\n\n");
 				//exibirRelatorio();
 				break;				
 			case '5':
-				printf("Voltando para o menu!\n\n");
+				//printf("Voltando para o menu!\n\n");
 				return 2;
 				break;					
 			default:
