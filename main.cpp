@@ -506,6 +506,7 @@ void cadastrarFuncionario(Funcionario funcionario[], int *cadastro) {
         return;
     }
 
+	char entrada[30];
     int numeroCpf;
     int index = *cadastro;
     
@@ -587,12 +588,12 @@ void listarVendas() {
 			printf("\tSubcategoria: nenhuma informada\n");
 			
 		printf("\tQuantidade: %d\n", venda[i].quantidade);
-		printf("\tValor total: R$%.2f\n", venda[i].totalVenda);
 		printf("\tForma de pagamento: %s\n", venda[i].formaPagamento);
 		
 		if(strcmp(venda[i].formaPagamento, "Cartão") == 0) 
 			printf("\tTipo de operação: %s\n", venda[i].tipoOperacao);
     
+		printf("\tValor total: R$%.2f\n", venda[i].totalVenda);
 		printf("---------------------------------\n\n");
 	}
 }
@@ -702,7 +703,8 @@ void cadastrarVenda() {
 		printf("Informe a quantidade de produtos vendidos: ");
 		scanf("%d", &novaVenda->quantidade);
 		
-		valorTotal = novaVenda->quantidade * produtos[idProduto - 1].precoUnidade;
+		Produto *prodSelecionado = &produtos[idProduto - 1];
+		valorTotal = novaVenda->quantidade * prodSelecionado->precoUnidade;
 		
 		system("cls");				
 		printf("Valor total: %.2f", valorTotal);
@@ -711,14 +713,14 @@ void cadastrarVenda() {
 		formaPagamento(qntVendas);
 		
 		novaVenda->totalVenda += valorTotal;		
-		produtos[idProduto - 1].qntVendas++;				
-		produtos[idProduto - 1].totalVendas += valorTotal;
+		prodSelecionado->qntVendas++;				
+		prodSelecionado->totalVendas += valorTotal;
 		
-		categorias[produtos[idProduto - 1].idxCategoria].qntVendas++;
-		categorias[produtos[idProduto - 1].idxCategoria].totalVendas += valorTotal;
-		categorias[produtos[idProduto - 1].idxCategoria].subcategorias[produtos[idProduto - 1].idxSubcategoria].qntVendas++;
-		categorias[produtos[idProduto - 1].idxCategoria].subcategorias[produtos[idProduto - 1].idxSubcategoria].totalVendas += valorTotal;
-		produtos[idProduto - 1].qntEstoque -= venda[qntVendas].quantidade;
+		categorias[prodSelecionado->idxCategoria].qntVendas++;
+		categorias[prodSelecionado->idxCategoria].totalVendas += valorTotal;
+		categorias[prodSelecionado->idxCategoria].subcategorias[prodSelecionado->idxSubcategoria].qntVendas++;
+		categorias[prodSelecionado->idxCategoria].subcategorias[prodSelecionado->idxSubcategoria].totalVendas += valorTotal;
+		prodSelecionado->qntEstoque -= venda[qntVendas].quantidade;
 		qntVendas++;
 		
 		fflush(stdin);
