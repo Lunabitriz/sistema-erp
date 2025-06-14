@@ -906,18 +906,28 @@ void removerProduto() {
 		}
 		
 		if(encontrou) {
-			char aux[50];
+			do {
+				printf("\nTem certeza que deseja remover o produto? (s/n): ");
+				fgets(entrada, sizeof(entrada), stdin);
+				limparEnter(entrada);
+				
+				op = tolower(entrada[0]);				
+			} while(op != 's' && op != 'n');
 			
-			strcpy(aux, produtos[idEncontrado].nome);
-			
-			for(int i = idEncontrado; i < qntProdutos - 1; i++) {
-				produtos[i] = produtos[i + 1];
-			}
-			
-			qntProdutos--;
-			printf("Produto: %s removido com sucesso!\n\n", aux);
-		} else 
-			printf("Produto não encontrado!\n\n");
+			if(op == 's') {
+				char aux[50];
+				
+				strcpy(aux, produtos[idEncontrado].nome);
+				
+				for(int i = idEncontrado; i < qntProdutos - 1; i++)
+					produtos[i] = produtos[i + 1];
+				
+				qntProdutos--;
+				printf("\nProduto: %s removido com sucesso!\n\n", aux);
+			} else
+				printf("\nRemoção cancelada com sucesso!\n\n");
+		} else
+			printf("\nProduto não encontrado!\n\n");
 	}
 	
 	if(op == '2') {		
@@ -947,6 +957,165 @@ void removerProduto() {
 		} else 
 			printf("Produto não encontrado!\n\n");
 	}
+}
+
+void editarCategoria() {
+	if(qntCategorias == 0) {
+		printf("Cadastre uma categoria primeiro para usar esta função!\n\n");
+		return;
+	}
+	
+	char entrada[50];
+	int idCategoria, existeIgual = 0;
+	
+	idCategoria = listarSelecionarCategoria();
+		
+	system("cls");
+	printf("| Categoria selecionada: %s\n", categorias[idCategoria].nome);
+	printf("---------------------------\n\n");
+	
+	getchar();
+	
+	do {		
+		existeIgual = 0;
+	
+		printf("Informe um novo nome para a categoria: ");
+		fgets(entrada, sizeof(entrada), stdin);
+		limparEnter(entrada);
+		
+		for(int i = 0; i < qntCategorias; i++) {
+			if(strcmp(entrada, categorias[i].nome) == 0) {
+				existeIgual = 1;
+				break;
+			}
+		}
+		
+		if(existeIgual) printf("\nEssa categoria já foi cadastrada. \nPor favor, informe outro nome!\n\n");	
+	} while(existeIgual);
+	
+	strcpy(categorias[idCategoria].nome, entrada);
+	printf("\nCategoria editada com sucesso!!\n\n");
+}
+
+void removerCategoria() {
+	if(qntCategorias == 0) {
+		printf("Não há categorias cadastradas no sistema!\n\n");
+		return;
+	}
+	
+	int idCategoria = listarSelecionarCategoria();
+	char entrada[50], op;
+	
+	getchar();
+	
+	do {
+		printf("\nTem certeza que deseja remover %s? (s/n): ", categorias[idCategoria].nome);
+		fgets(entrada, sizeof(entrada), stdin);
+		limparEnter(entrada);
+		
+		op = tolower(entrada[0]);				
+	} while(op != 's' && op != 'n');
+	
+	if(op == 's') {
+		char aux[50];
+		
+		strcpy(aux, categorias[idCategoria].nome);
+		
+		for(int i = idCategoria; i < qntCategorias - 1; i++) 
+			categorias[i] = categorias[i + 1];
+		
+		qntCategorias--;
+		printf("\nCategoria: %s removida com sucesso!!\n\n", aux);
+	} else 
+		printf("\nRemoção cancelada com sucesso!\n\n");		
+}
+
+void editarSubcategoria() {
+	if(qntCategorias == 0) {
+		printf("Cadastre uma categoria primeiro para usar esta função!\n\n");
+		return;
+	}
+	
+	int idCategoria = listarSelecionarCategoria();
+	
+	if(categorias[idCategoria].qntSubcategorias == 0) {
+		printf("%s não possui subcategorias cadastradas no sistema!!\n\n");
+		return;
+	}
+	
+	system("cls");
+	int idSubcategoria = listarSelecionarSubcategoria(idCategoria);
+		
+	char entrada[50];
+	int existeIgual = 0;
+	
+	system("cls");
+	printf("| Subcategoria selecionada: %s\n", categorias[idCategoria].subcategorias[idSubcategoria].nome);
+	printf("---------------------------\n\n");
+	
+	getchar();
+	
+	do {		
+		existeIgual = 0;
+	
+		printf("Informe um novo nome para a subcategoria: ");
+		fgets(entrada, sizeof(entrada), stdin);
+		limparEnter(entrada);
+		
+		for(int i = 0; i < qntCategorias; i++) {
+			if(strcmp(entrada, categorias[idCategoria].subcategorias[idSubcategoria].nome) == 0) {
+				existeIgual = 1;
+				break;
+			}
+		}
+		
+		if(existeIgual) printf("\nEssa subcategoria já foi cadastrada. \nPor favor, informe outro nome!\n\n");	
+	} while(existeIgual);
+	
+	strcpy(categorias[idCategoria].subcategorias[idSubcategoria].nome, entrada);
+	printf("\nSubcategoria editada com sucesso!!\n\n");
+}
+
+void removerSubcategoria() {
+	if(qntCategorias == 0) {
+		printf("Não há categorias cadastradas no sistema!\n\n");
+		return;
+	}
+	
+	int idCategoria = listarSelecionarCategoria();
+	
+	if(categorias[idCategoria].qntSubcategorias == 0) {
+		printf("%s não possui subcategorias cadastradas no sistema!!\n\n");
+		return;
+	}
+	
+	system("cls");
+	int idSubcategorias = listarSelecionarSubcategoria(idCategoria);
+	
+	char entrada[50], op;
+	
+	getchar();
+	
+	do {
+		printf("\nTem certeza que deseja remover %s? (s/n): ", categorias[idCategoria].subcategorias[idSubcategorias].nome);
+		fgets(entrada, sizeof(entrada), stdin);
+		limparEnter(entrada);
+		
+		op = tolower(entrada[0]);				
+	} while(op != 's' && op != 'n');
+	
+	if(op == 's') {
+		char aux[50];
+		
+		strcpy(aux, categorias[idCategoria].subcategorias[idSubcategorias].nome);
+		
+		for(int i = idSubcategorias; i < categorias[idCategoria].qntSubcategorias - 1; i++)
+			categorias[idCategoria].subcategorias[i] = categorias[idCategoria].subcategorias[i + 1];
+		
+		categorias[idCategoria].qntSubcategorias--;
+		printf("\nSubcategoria: %s removida com sucesso!!\n\n", aux);
+	} else 
+		printf("\nRemoção cancelada com sucesso!\n\n");		
 }
 
 // Clientes
@@ -1202,7 +1371,6 @@ void cadastrarVenda() {
 		
 		printf("| Produtos cadastrados:\n\n");	
 			
-		//Não mostrar produtos que qnt em estoque == 0
 		for(int i = 0 ; i < qntProdutos ; i++) 
 			printf("\tProduto %d: %s\n", i + 1, produtos[i].nome);
 	
@@ -1404,10 +1572,10 @@ void menuEditar() {
 				//editarFuncionario();
 				break;
 			case '5':
-				//editarCategoria();
+				editarCategoria();
 				break;
 			case '6':
-				//editarSubcategoria();
+				editarSubcategoria();
 				break;
 			case '7':
 				return;
@@ -1457,10 +1625,10 @@ void menuRemover() {
 				//removerFuncionario();
 				break;
 			case '5':
-				//removerCategoria();
+				removerCategoria();
 				break;
 			case '6':
-				//removerSubcategoria();
+				removerSubcategoria();
 				break;
 			case '7':
 				return;
