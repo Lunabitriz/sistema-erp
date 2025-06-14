@@ -113,6 +113,8 @@ void start() {
 		produtos[i].qntVendas = 0;
 		produtos[i].totalVendas = 0.0;
 		produtos[i].qntCategorias = 0;
+		produtos[i].idxCategoria = -1;
+		produtos[i].idxSubcategoria = -1;
 	}
 	
 	for(int i = 0; i < MAX_VENDAS; i++)
@@ -169,9 +171,9 @@ void cadastrarCategoria() {
 	Categoria *novaCategoria = &categorias[qntCategorias];
 	novaCategoria->qntSubcategorias = 0;
 	
+	exibirHeader("Cadastro nova categoria");
 	do {
 		existe = 0;
-		exibirHeader("Cadastro nova categoria");
 				
 		printf("Informe o nome da categoria: ");
 		fgets(novaCategoria->nome, sizeof(novaCategoria->nome), stdin);
@@ -336,12 +338,23 @@ void cadastrarProduto() {
 	
 	Produto *novoProd = &produtos[qntProdutos];
 	char entrada[20];
+	int existeIgual = 0;
 	
 	exibirHeader("Cadastro Novo Produto");
 	
-	printf("Informe o nome do produto: ");
-	fgets(novoProd->nome, sizeof(novoProd->nome), stdin);
-	limparEnter(novoProd->nome);
+	do {
+		existeIgual = 0;
+		
+		printf("Informe o nome do produto: ");
+		fgets(novoProd->nome, sizeof(novoProd->nome), stdin);
+		limparEnter(novoProd->nome);
+		
+		for(int i = 0; i < qntProdutos; i++) {
+			if(strcmp(novoProd->nome, produtos[i].nome) == 0) existeIgual = 1;
+		}
+		
+		if(existeIgual) printf("\nEsse nome já foi cadastrado! Tente novamente.\n");
+	} while(existeIgual);
 	
 	// Mostra essa opção apenas se houver categorias
 	if(qntCategorias > 0) {
@@ -398,36 +411,44 @@ void cadastrarProduto() {
 	
 	novoProd->qntEstoque = atof(entrada);	
 	
-	do {
+	do {	
+		existeIgual = 0;
+		
 		printf("Informe o código do produto (ex: 1234): ");
 		fgets(entrada, sizeof(entrada), stdin);
 		limparEnter(entrada);			
-	} while(!somenteReais(entrada));	
-	
-	novoProd->codigoProduto = atof(entrada);
+		
+		for(int i = 0; i < qntProdutos; i++) {
+			if(atoi(entrada) == produtos[i].codigoProduto) existeIgual = 1;
+		}
+		
+		if(existeIgual) printf("\nEsse código já foi cadastrado! Tente novamente.\n");
+	} while(!somenteReais(entrada) || existeIgual);	
+		
+	novoProd->codigoProduto = atoi(entrada);
 	
 	printf("\n| Produto cadastrado com sucesso!!\n\n");
 	qntProdutos++;
 }
 
 void exibirProduto(int i, int count) {		
-	printf("Produto %d\n\n", count);	
-	printf("Nome do produto: %s\n", produtos[i].nome);
-	printf("Código do produto: %d\n", produtos[i].codigoProduto);
-	printf("Preço de venda: R$%.2f\n", produtos[i].precoUnidade);		
-	printf("Preço de custo: R$%.2f\n", produtos[i].precoCusto);
-	printf("Quantidade em estoque: %d\n", produtos[i].qntEstoque);
-	printf("Quantidade de vendas: %d\n", produtos[i].qntVendas);
+	printf("| Produto %d\n\n", count);	
+	printf("\tNome do produto: %s\n", produtos[i].nome);
+	printf("\tCódigo do produto: %d\n", produtos[i].codigoProduto);
+	printf("\tPreço de venda: R$%.2f\n", produtos[i].precoUnidade);		
+	printf("\tPreço de custo: R$%.2f\n", produtos[i].precoCusto);
+	printf("\tQuantidade em estoque: %d\n", produtos[i].qntEstoque);
+	printf("\tQuantidade de vendas: %d\n", produtos[i].qntVendas);
 	
 	if(produtos[i].qntCategorias > 0)
-		printf("Categorias do produto: %s\n", categorias[produtos[i].idxCategoria]);
+		printf("\tCategorias do produto: %s\n", categorias[produtos[i].idxCategoria].nome);
 	else
-		printf("Categorias do produto: não informado\n");
+		printf("\tCategorias do produto: não informado\n");
 		
 	if(categorias[produtos[i].idxCategoria].qntSubcategorias > 0)
-		printf("Subcategorias do produto: %s\n", categorias[produtos[i].idxCategoria].subcategorias[produtos[i].idxSubcategoria].nome);
+		printf("\tSubcategorias do produto: %s\n", categorias[produtos[i].idxCategoria].subcategorias[produtos[i].idxSubcategoria].nome);
 	else 
-		printf("Subcategorias do produto: não informado\n");
+		printf("\tSubcategorias do produto: não informado\n");
 		
 	printf("\n------------------------\n");
 }
@@ -488,19 +509,32 @@ void listarPorFaixa(char operador, char mensagem[20]) {
 	int count = 0, existe = 0;
 	float valor;
 	
+	printf("| Opção: Listagem %s x valor\n", mensagem);
+	printf("---------------------------\n\n");
+	
 	printf("Informe um valor: ");
 	scanf("%f", &valor);
 	
+	printf("\n---------------------");	
+	
 	for(int i = 0; i < qntProdutos; i++) {
-		if(compararValores(produtos[i].precoUnidade, valor, operador)) {
-			count++;
-			exibirProduto(i, count);
-			existe = 1;
-		}
+		if(compararValores(produtos[i].precoUnidade, valor, operador)) existe = 1;
 	}	
 	
-	if(!existe) 
-		printf("Não há produtos cadastrados %s %.2f!\n\n", mensagem, valor);
+	if(existe) {
+		system("cls");
+		printf("------- Produtos %s R$%.2f -------\n\n", mensagem, valor);
+		
+		for(int i = 0; i < qntProdutos; i++) {
+			if(compararValores(produtos[i].precoUnidade, valor, operador)) {
+				count++;
+				exibirProduto(i, count);
+			}
+		}
+	} else 
+		printf("\nNão há produtos cadastrados %s %.2f!\n\n", mensagem, valor);
+	
+	//if(!existe) 
 }
 
 void listarPorPreco() {
@@ -508,9 +542,12 @@ void listarPorPreco() {
 	char op, entrada[20];
 	
 	while(1) {
-		printf("1- Listar produtos por valor específico\n");
-		printf("2- Listar produtos acima de um valor\n");
-		printf("3- Listar produtos abaixo de um valor\n");
+		printf("| Menu - Listagem por:\n");
+		printf("---------------------------\n\n");
+		
+		printf("1- Valor específico\n");
+		printf("2- Produtos acima de um valor\n");
+		printf("3- Produtos abaixo de um valor\n");
 		printf("4- Voltar ao menu\n");
 		
 		printf("\nEscolha uma opção: ");
@@ -603,9 +640,9 @@ void listarProdutos() {
 		printf("---------------------------\n\n");
 		
 		printf("1- Top 10 mais vendidos\n");
-		printf("4- Listar por preço\n");
-		printf("2- Listar por categoria\n");
-		printf("3- Listar por subcategoria\n");
+		printf("2- Listar por preço\n");
+		printf("3- Listar por categoria\n");
+		printf("4- Listar por subcategoria\n");
 		printf("5- Produtos sem estoque\n");
 		printf("6- Voltar ao menu\n");
 		
@@ -639,6 +676,276 @@ void listarProdutos() {
 		
 		system("pause");
 		system("cls");
+	}
+}
+
+void exibirOpcaoEditar(int idEncontrado) {
+	char novoValor[50], entrada[50], op;
+	int opEdicao;
+	
+	system("cls");
+	printf("Produto encontrado!\n\n");
+	
+	exibirProduto(idEncontrado, idEncontrado + 1);
+	Produto *prod = &produtos[idEncontrado];
+	
+	printf("| Opções de edição:\n\n");
+	
+	printf("1- Nome\n");
+	printf("2- Código do produto\n");
+	printf("3- Categoria\n");
+	printf("4- Subcategoria\n");
+	printf("5- Preço de venda\n");
+	printf("6- Preço de custo\n");
+	printf("7- Quantidade em estoque\n\n");
+	
+	do {
+		printf("Informe o que deseja editar de 1 a 7: ");
+		fgets(entrada, sizeof(entrada), stdin);
+		limparEnter(entrada);
+		
+		opEdicao = atoi(entrada);
+	} while(opEdicao < 1 || opEdicao > 7);
+	
+	system("cls");
+	
+	if(atoi(entrada) == 1) {
+		printf("| Nome atual: %s\n", prod->nome);
+		printf("---------------------------\n\n");
+		
+		printf("Informe um novo nome para o produto: ");
+		fgets(novoValor, sizeof(novoValor), stdin);
+		limparEnter(novoValor);
+		
+		strcpy(prod->nome, novoValor);		
+		printf("\nNome atualizado com sucesso!!\n\n");
+	} 			
+	else if(atoi(entrada) == 2) {		
+		do{
+			printf("| Nome atual: %s\n", prod->nome);
+			printf("---------------------------\n\n");
+			
+			printf("Informe um novo código para o produto: ");
+			fgets(novoValor, sizeof(novoValor), stdin);
+			limparEnter(novoValor);
+		} while(!somenteReais(novoValor));			
+			
+		prod->codigoProduto = atoi(novoValor);		
+		printf("\nCódigo do produto atualizado com sucesso!!\n\n");
+	}			
+	else if(atoi(entrada) == 3) {		
+		if(qntCategorias <= 0)
+			printf("Cadastre uma categoria primeiro para usar esta opção!\n\n");
+		else {			
+			printf("| Categoria atual: %s\n", (prod->idxCategoria != -1) ? categorias[prod->idxCategoria].nome : "Nenhuma");
+			printf("---------------------------\n\n");
+			
+			prod->idxCategoria = listarSelecionarCategoria();
+			prod->qntCategorias++;
+			printf("\n");
+			
+			if(categorias[prod->idxCategoria].qntSubcategorias > 0){
+				system("cls");
+				prod->idxSubcategoria = listarSelecionarSubcategoria(prod->idxCategoria);					
+				printf("\nCategoria e subcategoria atualizadas com sucesso!!\n\n");				
+			} else 
+				printf("\nCategoria atualizada com sucesso!!\n\n");					
+		}
+	}			
+	else if(atoi(entrada) == 4) {
+		if(prod->idxCategoria != -1) {
+			printf("| Subcategoria atual: %s\n", categorias[prod->idxCategoria].subcategorias[prod->idxSubcategoria].nome);
+			printf("---------------------------\n\n");
+			
+			prod->idxSubcategoria = listarSelecionarSubcategoria(prod->idxCategoria);				
+			printf("\nSubcategoria atualizada com sucesso!!\n\n");			
+		} else
+			printf("Informe uma categoria para o produto antes de adicionar/modificar as subcategorias!");
+	}			
+	else if(atoi(entrada) == 5) {
+		do{
+			printf("| Preço de venda atual: R$%.2f\n", prod->precoUnidade);
+			printf("---------------------------\n\n");
+			
+			printf("Informe um novo preço de venda: ");
+			fgets(novoValor, sizeof(novoValor), stdin);
+			limparEnter(novoValor);
+		} while(!somenteReais(novoValor));
+		
+		prod->precoUnidade = atof(novoValor);				
+		printf("\nPreço de venda atualizado com sucesso!!\n\n");
+	}
+	else if(atoi(entrada) == 6) {
+		do{
+			printf("| Preço de custo atual: R$%.2f\n", prod->precoCusto);
+			printf("---------------------------\n\n");
+			
+			printf("Informe um novo preço de custo: ");
+			fgets(novoValor, sizeof(novoValor), stdin);
+			limparEnter(novoValor);
+		} while(!somenteReais(novoValor));
+		
+		prod->precoCusto = atof(novoValor);		
+		printf("\nPreço de custo atualizado com sucesso!!\n\n");
+	}
+	else if(atoi(entrada) == 7) {
+		do{
+			printf("| Quantidade em estoque atual: %d\n", prod->qntEstoque);
+			printf("---------------------------\n\n");
+			
+			printf("Informe a quantidade em estoque atual do produto: ");
+			fgets(novoValor, sizeof(novoValor), stdin);
+			limparEnter(novoValor);
+		} while(!somenteReais(novoValor));
+		
+		prod->qntEstoque = atoi(novoValor);		
+		printf("\nQuantidade em estoque atualizada com sucesso!!\n\n");
+	}
+}
+
+// Editar/remover informações
+void editarProduto() {
+	if(qntProdutos == 0) {
+		printf("Não há produtos cadastrados no estoque!\n\n");
+		return;
+	}
+	
+	char novoValor[50], entrada[50], op;
+	int idEncontrado, encontrou = 0; 
+	
+	do {
+		printf("| Opções de busca\n");
+		printf("---------------------------\n\n");
+		
+		printf("1- Por nome.\n");
+		printf("2- Por código do produto.\n\n");
+		
+		printf("Escolha uma opção: ");
+		fgets(entrada, sizeof(entrada), stdin);
+		limparEnter(entrada);
+		
+		op = tolower(entrada[0]);
+	} while(op != '1' && op != '2');
+
+	system("cls");
+	printf("| Opção selecionada: %s\n", (op == '1') ? "Nome" : "Código");
+	printf("---------------------------\n\n");
+	
+	if(op == '1') {
+		printf("Informe o nome do produto: ");
+		fgets(entrada, sizeof(entrada), stdin);
+		limparEnter(entrada);
+		
+		for(int i = 0; i < qntProdutos; i++) {
+			if(strcmp(entrada, produtos[i].nome) == 0) {
+				encontrou = 1;
+				idEncontrado = i;
+			}
+		}
+		
+		if(encontrou)
+			exibirOpcaoEditar(idEncontrado);
+		else 
+			printf("\nProduto não encontrado!\n\n");
+	}
+	
+	if(op == '2') {		
+		printf("Informe o código do produto: ");
+		fgets(entrada, sizeof(entrada), stdin);
+		limparEnter(entrada);
+		
+		for(int i = 0; i < qntProdutos; i++) {
+			if(atoi(entrada) == produtos[i].codigoProduto) {
+				encontrou = 1;
+				idEncontrado = i;
+			}
+		}
+		
+		if(encontrou)
+			exibirOpcaoEditar(idEncontrado);
+		else 
+			printf("\nProduto não encontrado!\n\n");
+	}
+}
+
+void removerProduto() {
+	if(qntProdutos == 0) {
+		printf("Não há produtos cadastrados no estoque!\n\n");
+		return;
+	}
+	
+	char novoValor[50], entrada[50], op;
+	int idEncontrado, encontrou = 0; 
+	
+	do {
+		printf("1- Por nome.\n");
+		printf("2- Por código do produto.\n\n");
+		
+		printf("Escolha uma opção: ");
+		fgets(entrada, sizeof(entrada), stdin);
+		limparEnter(entrada);
+		
+		op = tolower(entrada[0]);
+	} while(op != '1' && op != '2');
+
+	system("cls");
+	printf("| Opção selecionada: %s\n", (op == '1') ? "Nome" : "Código");
+	printf("---------------------------\n\n");
+	
+	if(op == '1') {
+		printf("Informe o nome do produto: ");
+		fgets(entrada, sizeof(entrada), stdin);
+		limparEnter(entrada);
+		
+		for(int i = 0; i < qntProdutos; i++) {
+			if(strcmp(entrada, produtos[i].nome) == 0) {
+				encontrou = 1;
+				idEncontrado = i;
+				break;
+			}
+		}
+		
+		if(encontrou) {
+			char aux[50];
+			
+			strcpy(aux, produtos[idEncontrado].nome);
+			
+			for(int i = idEncontrado; i < qntProdutos - 1; i++) {
+				produtos[i] = produtos[i + 1];
+			}
+			
+			qntProdutos--;
+			printf("Produto: %s removido com sucesso!\n\n", aux);
+		} else 
+			printf("Produto não encontrado!\n\n");
+	}
+	
+	if(op == '2') {		
+		printf("Informe o código do produto: ");
+		fgets(entrada, sizeof(entrada), stdin);
+		limparEnter(entrada);
+		
+		for(int i = 0; i < qntProdutos; i++) {
+			if(atoi(entrada) == produtos[i].codigoProduto) {
+				encontrou = 1;
+				idEncontrado = i;
+				break;
+			}
+		}
+		
+		if(encontrou) {
+			char aux[50];
+			
+			strcpy(aux, produtos[idEncontrado].nome);
+			
+			for(int i = idEncontrado; i < qntProdutos - 1; i++) {
+				produtos[i] = produtos[i + 1];
+			}
+			
+			qntProdutos--;
+			printf("\nProduto: %s removido com sucesso!\n\n", aux);			
+		} else 
+			printf("Produto não encontrado!\n\n");
 	}
 }
 
@@ -1091,7 +1398,7 @@ void menuEditar() {
 				//editarCliente();
 				break;
 			case '3':
-				//editarProduto();
+				editarProduto();
 				break;
 			case '4':
 				//editarFuncionario();
@@ -1144,7 +1451,7 @@ void menuRemover() {
 				//removerCliente();
 				break;
 			case '3':
-				//removerProduto();
+				removerProduto();
 				break;
 			case '4':
 				//removerFuncionario();
@@ -1239,8 +1546,22 @@ int menuPainel() {
 				//exibirRelatorio();
 				break;				
 			case '5':
-				return 2;
-				break;					
+				while(1) {
+					printf("Tem certeza que deseja voltar para a tela de login? (s/n): ");
+					fgets(entrada, sizeof(entrada), stdin);
+					limparEnter(entrada);
+					
+					op = tolower(entrada[0]);
+										
+					system("cls");
+					
+					switch(op) {
+						case 's': return 2; break;
+						case 'n': menuPainel(); break;
+						default: printf("Escolha uma opção válida");
+					}
+				}
+				break;				
 			default:
 				printf("Escolha uma opção válida!\n\n");
 		}
