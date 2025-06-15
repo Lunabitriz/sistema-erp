@@ -72,15 +72,18 @@ typedef struct {
     char funcao[50];
     char admissao[50];
     int idFuncionario; //novo
+    int qntVendas; 
+    float totalVendas;
 } Funcionario;
 
 typedef struct {
+	char formaPagamento[20];
+	char tipoOperacao[15];
+	char dataVenda[11];
 	int idProduto;
 	int idFuncionario;
 	int idCliente;
 	int quantidade;
-	char formaPagamento[20];
-	char tipoOperacao[15];
 	float totalVenda;
 } Venda;
 
@@ -90,9 +93,8 @@ typedef struct {
     char email[50];
     char tel[20]; //novo
     int idade;
-    int qntCompras; //novo
-    float valorPendente; //novo
-    float totalComprado; //novo
+    int qntCompras; 
+    float totalComprado;
 } Cliente;
 
 Produto produtos[MAX_PRODUTOS];
@@ -118,6 +120,16 @@ void start() {
 		produtos[i].idxSubcategoria = -1;
 	}
 	
+	for(int i = 0; i < MAX_FUNC; i++) {
+		funcionario[i].qntVendas = 0;
+		funcionario[i].totalVendas = 0.0;
+	}
+	
+	for(int i = 0; i < MAX_CLIENTES; i++) {
+		clientes[i].qntCompras = 0;
+		clientes[i].totalComprado = 0.0;
+	}
+	
 	for(int i = 0; i < MAX_VENDAS; i++)
 		venda[i].totalVenda = 0.0;
 	
@@ -129,7 +141,7 @@ void start() {
 			categorias[i].subcategorias[j].qntVendas = 0;
 			categorias[i].subcategorias[j].totalVendas = 0.0;
 		}
-	}
+	}	
 }
 
 int verificacao(int entrada, int tamanhoEsperado, char *nome) {
@@ -165,6 +177,31 @@ int validarEmail(char atrr[]) {
 	}
 	
 	return (valido == 1) ? 1 : 0;
+}
+
+int validarData(char atrr[]) {
+	if(atrr[0] == '\0') return 0;
+	
+	int dia, mes, ano;
+	
+	if(sscanf(atrr, "%d/%d/%d", &dia, &mes, &ano) == 3) {
+		if(ano < 1999 ||
+		   ano > 2050 ||
+		   mes < 1 ||
+		   mes > 12 ||
+		   dia < 1 ||
+		   dia > 31
+		) return 0;
+		
+		if(mes == 2 ||
+		   mes == 4 ||
+		   mes == 6 ||
+		   mes == 8 ||
+		   mes == 10 ||
+		   mes == 12) {
+		   if(dia > 30) return 0;
+		}
+	} else return 0;
 }
 
 void limparEnter(char atrr[]) {
@@ -371,6 +408,7 @@ void cadastrarProduto() {
 	// Mostra essa opção apenas se houver categorias
 	if(qntCategorias > 0) {
 		int idxCategoria, idxSubcategoria;
+		
 		novoProd->qntCategorias = 0;
 
 		system("cls");
@@ -1192,8 +1230,8 @@ void listarClientes() {
         printf("CPF: %s\n", clientes[i].cpf);
         printf("Email: %s\n", clientes[i].email);
         printf("Idade: %d\n", clientes[i].idade);
-        //exibir -> qnt de compras feitas
-        //exibir -> Valor total comprado na empresa 
+        printf("Quantidade de compras feitas: %d\n", clientes[i].qntCompras);
+        printf("Valor total em compras: R$%.2f\n", clientes[i].totalComprado);
         printf("----------------------------\n");
     }
 }
@@ -1247,9 +1285,11 @@ void cadastrarFuncionario(Funcionario funcionario[]) {
     fgets(novoFunc->funcao, sizeof(novoFunc->funcao), stdin);
     limparEnter(novoFunc->funcao);
 
-    printf("Dia da admissão: ");
-    fgets(novoFunc->admissao, sizeof(novoFunc->admissao), stdin);
-    limparEnter(novoFunc->admissao);
+	do {
+	    printf("Dia da admissão (ex.: dd/mm/aaaa): ");
+	    fgets(novoFunc->admissao, sizeof(novoFunc->admissao), stdin);
+	    limparEnter(novoFunc->admissao);		
+	} while(!validarData(novoFunc->admissao));
     
     //+idFuncionario   -> é o identificador do funcionário na empresa. Será usado na função de cadastrarVenda()
 
@@ -1263,15 +1303,16 @@ void listarFuncionarios() {
 		exibirHeader("Funcionarios Cadastrados(a)");
 	
 		for(int i = 0; i < qntFuncionarios; i++) {		
-			printf("Funcionario %d: %s\n", i + 1, funcionario[i].nomeFuncionario);
-			//exibir -> idFuncionário
-			printf("Numero folha: %d: %s\n", i + 1, funcionario[i].numeroFolha);		
-			printf("Numero PIS: %d: %s\n", i + 1, funcionario[i].numeroPis);
-			printf("Departamento %d: %s\n", i + 1, funcionario[i].departamento);		
-			printf("Função %d: %s\n", i + 1, funcionario[i].funcao);		
-			printf("CPF: %d: %s\n", i + 1, funcionario[i].cpf);		
-			printf("ID: %d: %s\n", i + 1, funcionario[i].idFuncionario);		
-			printf("Data de admissão: %d: %s\n", i + 1, funcionario[i].admissao);	
+			printf("Funcionario: %s\n", funcionario[i].nomeFuncionario);
+			printf("Numero folha: %s\n", funcionario[i].numeroFolha);		
+			printf("Numero PIS: %s\n", funcionario[i].numeroPis);
+			printf("Departamento: %s\n", funcionario[i].departamento);		
+			printf("Função: %s\n",  funcionario[i].funcao);		
+			printf("CPF: %s\n",  funcionario[i].cpf);		
+			printf("ID: %s\n",  funcionario[i].idFuncionario);		
+			printf("Data de admissão: %s\n", funcionario[i].admissao);	
+			printf("Quantidade de vendas feitas: %d\n", funcionario[i].qntVendas);	
+			printf("Valor total em vendas: R$%.2f\n", funcionario[i].totalVendas);	
 			printf("\n---------------------\n");
 		}
 	}
@@ -1309,7 +1350,6 @@ void editarFuncionario() {
 		
 		printf("\nEscolha o campo que deseja editar:\n\n");
 		printf("1 - Nome\n");
-		//idFuncionario
 		printf("2 - CPF\n");
 		printf("3 - Número da Folha\n");
 		printf("4 - Número PIS\n");
@@ -1446,6 +1486,7 @@ void listarVendas() {
 		printf("| Venda %d: \n", i + 1);		
 		printf("\tNome do produto: %s\n", prod->nome);
 		printf("\tCódigo do produto: %d\n", prod->codigoProduto);
+		printf("\tData da venda: %s\n", venda[i].dataVenda);
 		
 		if(produtos[i].qntCategorias >= 1) 
 			printf("\tCategoria: %s\n", categSelecionada->nome);			
@@ -1457,7 +1498,6 @@ void listarVendas() {
 		else 
 			printf("\tSubcategoria: nenhuma informada\n");
 			
-		printf("\tQuantidade: %d\n", venda[i].quantidade);
 		printf("\tForma de pagamento: %s\n", venda[i].formaPagamento);
 		
 		if(strcmp(venda[i].formaPagamento, "Cartão") == 0) 
@@ -1474,6 +1514,7 @@ void listarVendas() {
 			printf("\tCliente que efetuou a compra: Nenhum informado\n");
 		    
 		printf("\tValor total: R$%.2f\n", venda[i].totalVenda);
+		printf("\tQuantidade: %d\n", venda[i].quantidade);
 		printf("---------------------------------\n\n");
 	}
 }
@@ -1481,63 +1522,76 @@ void listarVendas() {
 void tipoOperacao(int op, int vendaIndex) {
 	system("cls");
 	
-	//usar do/while para garantir que oq for digitado não seja > 2 ou < 1
-	printf("1. Crédito.\n");
-	printf("2. Débito.\n\n");
-	printf("Informe o tipo de operação: ");
-	scanf("%d", &op);
-	
-	//ideia -> em crédito perguntar a quantidade de parcelas
-	
-	switch(op) {
-		case 1:
-			printf("\nVenda cadastrada com sucesso!!!\n\n");
-			strcpy(venda[vendaIndex].tipoOperacao, "Crédito");
-			break;
-		case 2:
-			printf("\nVenda cadastrada com sucesso!!!\n\n");
-			strcpy(venda[vendaIndex].tipoOperacao, "Débito");
-			break;
-		default:
-			printf("Erro! Escolha uma opção válida.\n\n");
-	}
+	do {
+		printf("1. Crédito.\n");
+		printf("2. Débito.\n\n");
+		printf("Informe o tipo de operação: ");
+		scanf("%d", &op);
+		
+		switch(op) {
+			case 1:
+				printf("\nVenda cadastrada com sucesso!!!\n\n");
+				strcpy(venda[vendaIndex].tipoOperacao, "Crédito");
+				break;
+			case 2:
+				printf("\nVenda cadastrada com sucesso!!!\n\n");
+				strcpy(venda[vendaIndex].tipoOperacao, "Débito");
+				break;
+			default:
+				printf("Erro! Escolha uma opção válida.\n\n");
+		}
+		
+		system("pause");
+		system("cls");
+		 
+	} while(op < 1 || op > 2);
 }
 
-void formaPagamento(int vendaIndex) {
+void formaPagamento(int vendaIndex, float valorTotal) {
 	int op;	
 
-	//usar do/while para garantir que oq for digitado não seja > 4 ou < 1
-	printf("1- Cartão.\n");
-	printf("2- Boleto.\n");
-	printf("3- Pix.\n");
-	printf("4- Dinheiro.\n\n");
-	printf("Informe a forma de pagamento: ");
-	scanf("%d", &op);
-	
-	switch(op) {
-		case 1:
-			strcpy(venda[vendaIndex].formaPagamento, "Cartão");
-			strcpy(venda[vendaIndex].tipoOperacao, "Cartão");
-			tipoOperacao(op, vendaIndex);
-			break;
-		case 2:
-			printf("\nVenda cadastrada com sucesso!!!\n\n");
-			strcpy(venda[vendaIndex].formaPagamento, "Boleto");
-			strcpy(venda[vendaIndex].tipoOperacao, "N/A");
-			break;
-		case 3:
-			printf("\nVenda cadastrada com sucesso!!!\n");
-			strcpy(venda[vendaIndex].formaPagamento, "Pix");
-			strcpy(venda[vendaIndex].tipoOperacao, "N/A");
-			break;
-		case 4:
-			printf("\nVenda cadastrada com sucesso!!!\n");
-			strcpy(venda[vendaIndex].formaPagamento, "Dinheiro");
-			strcpy(venda[vendaIndex].tipoOperacao, "N/A");
-			break;
-		default:
-			printf("\nErro! Escolha uma opção válida!\n\n");
-	}
+	do {		
+		system("cls");				
+		printf("Valor total: %.2f", valorTotal);
+		printf("\n---------------------\n\n");
+		
+		printf("1- Cartão.\n");
+		printf("2- Boleto.\n");
+		printf("3- Pix.\n");
+		printf("4- Dinheiro.\n\n");
+		printf("Informe a forma de pagamento: ");
+		scanf("%d", &op);
+		
+		system("cls");
+		
+		switch(op) {
+			case 1:
+				strcpy(venda[vendaIndex].formaPagamento, "Cartão");
+				strcpy(venda[vendaIndex].tipoOperacao, "Cartão");
+				tipoOperacao(op, vendaIndex);
+				break;
+			case 2:
+				printf("\nVenda cadastrada com sucesso!!!\n\n");
+				strcpy(venda[vendaIndex].formaPagamento, "Boleto");
+				strcpy(venda[vendaIndex].tipoOperacao, "N/A");
+				break;
+			case 3:
+				printf("\nVenda cadastrada com sucesso!!!\n");
+				strcpy(venda[vendaIndex].formaPagamento, "Pix");
+				strcpy(venda[vendaIndex].tipoOperacao, "N/A");
+				break;
+			case 4:
+				printf("\nVenda cadastrada com sucesso!!!\n");
+				strcpy(venda[vendaIndex].formaPagamento, "Dinheiro");
+				strcpy(venda[vendaIndex].tipoOperacao, "N/A");
+				break;
+			default:
+				printf("\nErro! Escolha uma opção válida!\n\n");
+		} 
+		
+		system("pause");
+		system("cls");
+	} while(op < 1 || op > 4);
 }
 
 void cadastrarVenda() {
@@ -1559,10 +1613,8 @@ void cadastrarVenda() {
 	do {
 		Venda *novaVenda = &venda[qntVendas];
 		
-		//mudança lucas 14/06
-		
 		//validar se existe funcionários cadastrados no sistema*
-		printf("Quem está efetuando o cadastro é um funcionário cadastrado? (S/N):\n");
+		printf("É funcionário cadastrado? (S/N):\n");
 		scanf("%c", &confirmacaoFuncionario);
 		
 		confirmacaoFuncionario = tolower(confirmacaoFuncionario);
@@ -1575,70 +1627,43 @@ void cadastrarVenda() {
 			for(int i = 0 ; i < qntFuncionarios ; i++) 
 				printf("\tFuncionário %d: %s\n", i + 1, funcionario[i].nomeFuncionario);
 			
-			printf("\t0- Funcionário não cadastrado\n");
+			printf("\n\t0- Funcionário não cadastrado\n");
 			printf("\n---------------------\n");
 		
 			do {
 				printf("Informe o funcionário que efetuou a venda: ");
 				scanf("%d", &idFuncionario);
-			} while(idFuncionario < 1 || idFuncionario > qntFuncionarios);
+			} while(idFuncionario < 0 || idFuncionario > qntFuncionarios);
+		}
+		
+		//validar se existe clientes cadastrados no sistema*
+		fflush(stdin);
+		printf("\nQuem efetuou a compra é um cliente cadastrado? (S/N):\n");
+		scanf("%c", &confirmacaoCliente);
+		
+		confirmacaoCliente = tolower(confirmacaoCliente);
 
+		if(confirmacaoCliente == 's') {
 			system("cls");
-
-			//validar se existe clientes cadastrados no sistema*
-			fflush(stdin);
-			printf("Quem efetuou a compra é um cliente cadastrado? (S/N):\n");
-			scanf("%c", &confirmacaoCliente);
-			
-			confirmacaoCliente = tolower(confirmacaoCliente); //reduz a quantidade de argumentos na condição
-
-			if(confirmacaoCliente == 's') {
-				system("cls");
-
-				printf("| Clientes cadastrados:\n\n");	
-				for(int i = 0 ; i < totalClientes ; i++) 
-					printf("\tCliente %d: %s\n", i + 1, clientes[i].nome);
-
-				printf("\t0- Cliente não cadastrado\n");
-				printf("\n---------------------\n");
-
-				do {
-					printf("Informe o cliente que comprou: ");
-					scanf("%d", &idCliente);
-				} while(idCliente < 1 || idCliente > totalClientes);
-			} else if (confirmacaoCliente == 'N' || confirmacaoCliente == 'n') {
+			printf("| Clientes cadastrados:\n\n");
 				
-			}
+			for(int i = 0 ; i < totalClientes ; i++) 
+				printf("\tCliente %d: %s\n", i + 1, clientes[i].nome);
 
-		} else if(confirmacaoFuncionario == 'n') {
-			system("cls");
+			printf("\n\t0- Cliente não cadastrado\n");
+			printf("\n---------------------\n");
 
-			fflush(stdin);
-			printf("Quem efetuou a compra é um cliente cadastrado? (S/N):\n");
-			scanf("%c", &confirmacaoCliente);
-
-			if (confirmacaoCliente == 'S' || confirmacaoCliente == 's') {
-				system("cls");
-
-				printf("| Clientes cadastrados:\n\n");	
-				for(int i = 0 ; i < totalClientes ; i++) 
-					printf("\tCliente %d: %s\n", i + 1, clientes[i].nome);
-	
-				printf("\n---------------------\n");
-				do {
-					printf("Informe o cliente que comprou: ");
-					scanf("%d", &idCliente);
-				} while(idCliente < 1 || idCliente > totalClientes);
-			} else if (confirmacaoCliente == 'n') {
-
-			}
+			do {
+				printf("Informe o cliente que comprou: ");
+				scanf("%d", &idCliente);
+			} while(idCliente < 0 || idCliente > totalClientes);
 		}
 		
 		system("cls");			
 		printf("| Produtos cadastrados:\n\n");	
 		
 		for(int i = 0 ; i < qntProdutos ; i++) {
-			if(produtos[i].qntEstoque > 0) //Não mostra produtos que qnt em estoque == 0
+			if(produtos[i].qntEstoque > 0)
 				printf("\tProduto %d: %s\n", i + 1, produtos[i].nome);
 		}
 	
@@ -1665,7 +1690,7 @@ void cadastrarVenda() {
 			
 			for(int i = 0 ; i < qntProdutos ; i++) {
 				if(novaVenda->quantidade > produtos[i].qntEstoque) {
-					printf("\nNão há essa quantidade deste produto no estoque. Tente novamente!\n");
+					printf("\nNão há essa quantidade deste produto no estoque. Tente novamente!\n");					
 					printf("Informe a quantidade de produtos vendidos: ");
 					scanf("%d", &novaVenda->quantidade);
 										
@@ -1675,14 +1700,20 @@ void cadastrarVenda() {
 			}
 		} while(!valido) ;
 		
+		fflush(stdin);
+		
+		do {
+			printf("\nInforme a data da venda (ex.: dd/mm/aaaa): ");
+			fgets(novaVenda->dataVenda, sizeof(novaVenda->dataVenda), stdin);
+			limparEnter(novaVenda->dataVenda);
+			
+			fflush(stdin);
+		} while(!validarData(novaVenda->dataVenda));
+		
 		Produto *prodSelecionado = &produtos[idProduto - 1];
 		valorTotal = novaVenda->quantidade * prodSelecionado->precoUnidade;
 		
-		system("cls");				
-		printf("Valor total: %.2f", valorTotal);
-		printf("\n---------------------\n\n");
-		
-		formaPagamento(qntVendas);
+		formaPagamento(qntVendas, valorTotal);
 		
 		novaVenda->totalVenda += valorTotal;		
 		prodSelecionado->qntVendas++;				
@@ -1694,12 +1725,17 @@ void cadastrarVenda() {
 		prodSelecionado->qntEstoque -= venda[qntVendas].quantidade;
 		novaVenda->idFuncionario = (confirmacaoFuncionario == 's') ? idFuncionario - 1 : -1;
 		novaVenda->idCliente = (confirmacaoCliente == 's') ? idCliente - 1 : -1;
+		
+		clientes[idCliente - 1].qntCompras++; //novo
+		clientes[idCliente - 1].totalComprado += valorTotal; //novo
+		funcionario[idFuncionario - 1].qntVendas++; //novo
+		funcionario[idFuncionario - 1].totalVendas += valorTotal; //novo
 		qntVendas++;
 		
 		fflush(stdin);
 		
 		do {
-			printf("\nDeseja cadastrar mais alguma venda (s/n)?: ");
+			printf("Deseja cadastrar mais alguma venda (s/n)?: ");
 			fgets(entrada, sizeof(entrada), stdin);
 			limparEnter(entrada);
 			
