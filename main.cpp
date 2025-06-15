@@ -1187,8 +1187,8 @@ void listarClientes() {
 }
 
 // Funcionários
-void cadastrarFuncionario(Funcionario funcionario[], int *cadastro) {	
-    if (*cadastro >= MAX_FUNC) {
+void cadastrarFuncionario(Funcionario funcionario[]) {	
+    if (qntFuncionarios >= MAX_FUNC) {
         system("cls");
         printf("Numero de funcionarios atingido!!!\n");
         printf("O seu limite atual de Funcionários é de %i", MAX_USERS);
@@ -1198,19 +1198,16 @@ void cadastrarFuncionario(Funcionario funcionario[], int *cadastro) {
 
 	char entrada[30];
     int numeroCpf;
-    int index = *cadastro;
+    int index = qntFuncionarios;
     
     Funcionario *novoFunc = &funcionario[index];
 
-    //getchar();
     system("cls");
 	exibirHeader("Cadastro novo funcionário");
 	
     printf("Nome: ");
     fgets(novoFunc->nomeFuncionario, sizeof(novoFunc->nomeFuncionario), stdin);
     limparEnter(novoFunc->nomeFuncionario);
-    
-    // Email
 
     do {
         printf("CPF: ");
@@ -1219,7 +1216,7 @@ void cadastrarFuncionario(Funcionario funcionario[], int *cadastro) {
         numeroCpf = strlen(novoFunc->cpf);
     } while (!verificacao(numeroCpf, 11, "CPF") || !somenteReais(novoFunc->cpf));
 
-    printf("\nNumero da folha: ");
+    printf("Numero da folha: ");
     fgets(novoFunc->numeroFolha, sizeof(novoFunc->numeroFolha), stdin);
     limparEnter(novoFunc->numeroFolha);
 
@@ -1227,7 +1224,7 @@ void cadastrarFuncionario(Funcionario funcionario[], int *cadastro) {
     fgets(novoFunc->numeroPis, sizeof(novoFunc->numeroPis), stdin);
     limparEnter(novoFunc->numeroPis);
 
-    printf("\nNome do empregador: ");
+    printf("Nome do empregador: ");
     fgets(novoFunc->empregador, sizeof(novoFunc->empregador), stdin);
     limparEnter(novoFunc->empregador);
 
@@ -1239,14 +1236,178 @@ void cadastrarFuncionario(Funcionario funcionario[], int *cadastro) {
     fgets(novoFunc->funcao, sizeof(novoFunc->funcao), stdin);
     limparEnter(novoFunc->funcao);
 
-    printf("\nDia da admissão: ");
+    printf("Dia da admissão: ");
     fgets(novoFunc->admissao, sizeof(novoFunc->admissao), stdin);
     limparEnter(novoFunc->admissao);
     
-    // Número de identificação na empresa
+    //+idFuncionario   -> é o identificador do funcionário na empresa. Será usado na função de cadastrarVenda()
 
     printf("\nFuncionario cadastrado!!!!\n");
-    (*cadastro)++;
+    qntFuncionarios++;
+}
+
+void listarFuncionarios(){
+		if(qntFuncionarios == 0) printf("Nenhum funcionário cadastrado(a) no sistema!\n\n");		
+		else {
+			exibirHeader("Funcionarios Cadastrados(a)");
+		
+			for(int i = 0; i < qntFuncionarios; i++) {		
+				printf("Funcionario %d: %s\n", i + 1, funcionario[i].nomeFuncionario);
+				//exibir -> idFuncionário
+				printf("Numero folha: %d: %s\n", i + 1, funcionario[i].numeroFolha);		
+				printf("Numero PIS: %d: %s\n", i + 1, funcionario[i].numeroPis);
+				printf("Departamento %d: %s\n", i + 1, funcionario[i].departamento);		
+				printf("Função %d: %s\n", i + 1, funcionario[i].funcao);		
+				printf("CPF: %d: %s\n", i + 1, funcionario[i].cpf);		
+				printf("ID: %d: %s\n", i + 1, funcionario[i].idFuncionario);		
+				printf("Data de admissão: %d: %s\n", i + 1, funcionario[i].admissao);	
+				printf("\n---------------------\n");
+			}
+		}
+}
+
+void editarFuncionarios(){
+	if (qntFuncionarios == 0) {
+      printf("Nenhum funcionário cadastrado(a) no sistema!\n\n");
+      return;
+    }
+
+    int escolha, opcao;
+    
+    exibirHeader("Editor de funcionários");
+
+    for (int i = 0; i < qntFuncionarios; i++) {
+      printf("%d - %s\n", i + 1, funcionario[i].nomeFuncionario);
+    }
+
+    printf("\nDigite o número do funcionário que deseja editar: ");
+    scanf("%d", &escolha);
+    getchar();
+
+    if (escolha < 1 || escolha > qntFuncionarios) {
+      printf("Funcionário inválido!\n");
+    }
+
+    int index = escolha - 1;
+    Funcionario *f = &funcionario[index];
+
+    do {
+      system("cls");
+      exibirHeader("Edição de dados");
+
+      printf("Editando: %s\n", f->nomeFuncionario);
+      printf("\nEscolha o campo que deseja editar:\n");
+      printf("1 - Nome\n");
+      //idFuncionario
+      printf("2 - CPF\n");
+      printf("3 - Número da Folha\n");
+      printf("4 - Número PIS\n");
+      printf("5 - Empregador\n");
+      printf("6 - Departamento\n");
+      printf("7 - Função\n");
+      printf("8 - Data de Admissão\n");
+      printf("0 - Sair da edição\n");
+      printf("Opção: ");
+      scanf("%d", &opcao);
+      getchar(); // limpar ENTER
+
+      switch (opcao) {
+        case 1:
+          printf("Novo nome: ");
+          fgets(f->nomeFuncionario, sizeof(f->nomeFuncionario), stdin);
+          limparEnter(f->nomeFuncionario);
+        break;
+        case 2:
+			do {
+				printf("Novo CPF: ");
+				fgets(f->cpf, sizeof(f->cpf), stdin);
+				limparEnter(f->cpf);
+			} while (!verificacao(strlen(f->cpf), 11, "CPF") || !somenteReais(f->cpf));
+      	break; 
+		case 3:
+			printf("Novo número da folha: ");
+			fgets(f->numeroFolha, sizeof(f->numeroFolha), stdin);
+			limparEnter(f->numeroFolha);
+		break;
+        case 4:
+			printf("Novo número PIS: ");
+			fgets(f->numeroPis, sizeof(f->numeroPis), stdin);
+			limparEnter(f->numeroPis);
+        break;
+        case 5:
+			printf("Novo empregador: ");
+			fgets(f->empregador, sizeof(f->empregador), stdin);
+			limparEnter(f->empregador);
+        break;
+        case 6:
+			printf("Novo departamento: ");
+			fgets(f->departamento, sizeof(f->departamento), stdin);
+			limparEnter(f->departamento);
+        break;
+        case 7:
+			printf("Nova função: ");
+			fgets(f->funcao, sizeof(f->funcao), stdin);
+			limparEnter(f->funcao);
+        break;
+        case 8:
+			printf("Nova data de admissão: ");
+			fgets(f->admissao, sizeof(f->admissao), stdin);
+			limparEnter(f->admissao);
+        break;
+        case 0:
+			printf("Saindo da edição...\n");
+        break;
+        default:
+          printf("Opção inválida!\n");
+        //break;
+      }
+
+      if (opcao != 0) {
+        printf("Campo atualizado com sucesso!\n");
+        system("pause");
+      }
+    } while (opcao != 0);
+}
+
+void removerFuncionario() {
+    if(qntFuncionarios == 0) {
+      printf("Nenhum funcionário cadastrado(a) no sistema!\n\n");
+    }
+
+    int escolha;
+
+    exibirHeader("Remover funcionário");
+
+    for (int i = 0; i < qntFuncionarios; i++) {
+      printf("%d - %s\n", i + 1, funcionario[i].nomeFuncionario);
+    }
+
+    printf("\nDigite o número do funcionário que deseja remover: ");
+    scanf("%d", &escolha);
+    getchar();
+
+    if (escolha < 1 || escolha > qntFuncionarios) {
+      printf("Funcionário inválido!\n");
+    }
+
+    int index = escolha - 1;
+
+    printf("Tem certeza que deseja remover %s? (s/n): ", funcionario[index].nomeFuncionario);
+    char confirmacao;
+    scanf("%c", &confirmacao);
+    getchar();
+
+    if (confirmacao == 's' || confirmacao == 'S') {
+        // Desloca todos os elementos à frente para trás
+      for (int i = index; i < qntFuncionarios - 1; i++) {
+        funcionario[i] = funcionario[i + 1];
+      }
+
+      qntFuncionarios--;
+      printf("Funcionário removido com sucesso!\n");
+    } else {
+      printf("Remoção cancelada.\n");
+    }
 }
 
 // Vendas
@@ -1530,8 +1691,65 @@ void cadastrarVenda() {
 }
 
 // Relatório
-void exibirRelatorio() {
-	//para desenvolver *
+void relatorioGeral() {
+	//Faturamento do mês atual
+	//Mês que mais vendeu 
+	//Mês com menos vendas
+	//Média de venda mensal (quantidade/valor)
+	//Produto com mais vendas
+	//Funcionário que mais vendeu
+	//Cliente cadastrado com mais compras
+	//categorias com mais vendas
+}
+void menuRelatorio() {
+	//relatório geral (resumão)
+	//relatório de vendas
+	//relatório de produtos
+	//relatório de funcionários
+	//relatório de clientes
+	//relatório de categorias
+	
+	//talvez não seja necessário ter um menu de relatório, mas vou vendo ao decorrer do código
+	char op, entrada[15];
+	
+	while(1) {
+		printf("| Menu - Relatório\n");
+		printf("---------------------------\n\n");
+		
+		printf("1- Relatório geral\n");
+		printf("2- Relatório de vendas\n");
+		printf("3- Relatório de produtos\n");
+		printf("4- Relatório de funcionários\n");
+		printf("5- Relatório de clientes\n");
+		printf("6- Relatório de categorias\n");
+		
+		printf("Escolha uma opção: ");
+		fgets(entrada, sizeof(entrada), stdin);
+		limparEnter(entrada);
+		
+		op = entrada[0];
+		system("cls");
+		
+		switch(op) {
+			case '1':
+				break;
+			case '2':
+				break;
+			case '3':
+				break;
+			case '4':
+				break;
+			case '5':
+				break;
+			case '6':
+				break;
+			default:
+				printf("Escolha uma opção válida!\n\n");
+		}
+		
+		system("pause");
+		system("cls");
+	}
 }
 
 // Menus > Menu Painel
@@ -1570,7 +1788,7 @@ void menuCadastrar() {
 				cadastrarProduto();
 				break;
 			case '4':
-				cadastrarFuncionario(funcionario, &cadastrofunc);
+				cadastrarFuncionario(funcionario);
 				break;
 			case '5':
 				cadastrarCategoria();
