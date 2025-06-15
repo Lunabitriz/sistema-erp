@@ -89,7 +89,7 @@ typedef struct {
     char cpf[20];
     char email[50];
     char tel[20]; //novo
-    int idade[20];
+    int idade;
     int qntCompras; //novo
     float valorPendente; //novo
     float totalComprado; //novo
@@ -156,6 +156,17 @@ int somenteReais(char str[]) {
     return 1;
 }
 
+int validarEmail(char atrr[]) {	
+	int valido = 0;
+	
+	for(int i = 0; atrr[i] != '\0'; i++) {
+		if(atrr[i] == '@')
+			valido++;
+	}
+	
+	return (valido == 1) ? 1 : 0;
+}
+
 void limparEnter(char atrr[]) {
 	atrr[strcspn(atrr, "\n")] = '\0';
 }
@@ -164,7 +175,7 @@ void exibirHeader(char mensagem[]) {
 	printf("------- %s: -------\n\n", mensagem);
 }
 
-// Categorias / Subcategorias
+// Categorias / Subcategorias 
 void cadastrarCategoria() {	
 	int existe;
 	char op, entrada[50];
@@ -1127,6 +1138,7 @@ void cadastrarCliente() {
     }
 
 	int sizeCpf;
+	char entrada[50];
 	
 	Cliente *novoCliente = &clientes[totalClientes];
 
@@ -1144,21 +1156,22 @@ void cadastrarCliente() {
 	    sizeCpf = strlen(novoCliente->cpf);
 	} while (!verificacao(sizeCpf, 11, "CPF"));
 
-	printf("Informe seu e-mail: ");
-	fgets(novoCliente->email, sizeof(novoCliente->email), stdin);
-	limparEnter(novoCliente->email);	
-	
-	printf("Informe sua idade: ");
-	
-	while (1) { // Garante que não há lixo no buffer antes de scanf
-		char entrada[10];		
-		fgets(entrada, sizeof(entrada), stdin);		
+	do {
+		printf("Informe seu e-mail: ");
+		fgets(novoCliente->email, sizeof(novoCliente->email), stdin);
+		limparEnter(novoCliente->email);		
 		
-		if(sscanf(entrada, "%d", &novoCliente->idade) == 1 && novoCliente->idade > 0)
-		    break;
-		else 
-		    printf("Idade inválida. Tente novamente: ");
-	}
+		if(!validarEmail(novoCliente->email) || validarEmail(novoCliente->email) == 2)
+			printf("\nInforme um email válido!\n\n");
+	} while(!validarEmail(novoCliente->email));
+	
+	do {
+		printf("Informe sua idade: ");
+		fgets(entrada, sizeof(entrada), stdin);
+		limparEnter(entrada);
+	} while(atoi(entrada) < 18);
+	
+	novoCliente->idade = atoi(entrada);
 	
 	totalClientes++;
 	printf("\nCliente cadastrado com sucesso!\n");
@@ -1180,8 +1193,7 @@ void listarClientes() {
         printf("Email: %s\n", clientes[i].email);
         printf("Idade: %d\n", clientes[i].idade);
         //exibir -> qnt de compras feitas
-        //exibir -> Valor total comprado na empresa
-        //exibir -> valor pendente (caso fiado)        
+        //exibir -> Valor total comprado na empresa 
         printf("----------------------------\n");
     }
 }
